@@ -42,7 +42,7 @@
 ### 2.3 Data, Background Jobs, and Real-Time
 
 - **Database:** PostgreSQL
-- **ORM:** Prisma
+- **ORM:** Drizzle ORM (with `postgres.js` driver)
 - **Caching & queue:** Redis
 - **Background jobs:** BullMQ (worker process)
 - **Real-time:** Server-Sent Events (SSE) using Next.js route handlers (for live updates)
@@ -75,10 +75,22 @@
   - type check
   - unit + integration tests
   - build (Next.js)
-- **CD:**
+- CD:
   - Frontend/Backend: Vercel
   - Database & Redis: managed service (e.g., Railway, Render, Neon, Supabase)
   - Worker: deployed as separate app or serverless function
+
+### 2.8 Local Development
+
+- **Containerization:** Docker Compose for local infrastructure (PostgreSQL, Redis).
+- **Ease of Use:** Single command setup (`docker-compose up` + `npm run dev`) to demonstrate focus on Developer Experience (DX).
+
+### 2.9 Security
+
+- **Validation:** Shared Zod schemas for client/server input validation (tRPC + REST).
+- **Rate Limiting:** Upstash Ratelimit or equivalent for public API and Auth routes.
+- **Headers:** Security headers (Helmet, CSP) configured for the Next.js app.
+
 
 ---
 
@@ -145,7 +157,7 @@ The project is divided into two major phases:
 
 - Modern React, TypeScript, Next.js App Router, Suspense
 - tRPC for type-safe API design
-- Relational data modeling with PostgreSQL and Prisma
+- Relational data modeling with PostgreSQL and Drizzle ORM
 - Authentication & authorization
 - Background job processing (emails)
 - Basic CI/CD and deployment
@@ -169,7 +181,7 @@ The project is divided into two major phases:
 **Tech / implementation:**
 
 - NextAuth.js configuration with Credentials and GitHub providers.
-- Prisma models: User, Account, Session.
+- Drizzle schemas: User, Account, Session (using `@auth/drizzle-adapter`).
 - tRPC middleware for `isWorkspaceMember` / `isWorkspaceOwner`.
 
 ### 5.2 Workspace & Organization
@@ -203,7 +215,7 @@ The project is divided into two major phases:
 
 **Tech / implementation:**
 
-- Prisma models: Board, Column, Task.
+- Drizzle schemas: Board, Column, Task.
 - tRPC procedures for CRUD and reorder operations.
 - Drag-and-drop using dnd-kit or similar.
 - TanStack Query for client state and optimistic updates.
@@ -274,7 +286,7 @@ The project is divided into two major phases:
 
 - GitHub Actions workflow with separate jobs.
 - Environment variables in Vercel and hosting provider.
-- DB migrations via Prisma Migrate (run in deploy script or CI).
+- DB migrations via Drizzle Kit (run in deploy script or CI).
 
 ### 5.8 Basic E2E Testing (MVP)
 
@@ -358,12 +370,12 @@ The project is divided into two major phases:
 - Offline viewing:
   - Recently viewed boards/tasks visible offline.
   - Offline banner / modal explaining state.
-- Mutation queue:
-  - Simple offline support for:
-    - Move task between columns.
-    - Add comment.
+- Mutation queue (Scope Constrained):
+  - Optimistic UI updates for immediate feedback.
+  - Simple "queue and retry" mechanism (Last-Write-Wins strategy).
+  - *Note:* Complex conflict resolution (CRDTs) is explicitly out of scope for this portfolio project to maintain focus on core features.
   - Queue mutations in IndexedDB/local storage when offline.
-  - Sync mutations when back online (best effort, with conflict hints).
+  - Sync mutations when back online (best effort).
 
 **Tech / implementation:**
 
@@ -400,10 +412,10 @@ The project is divided into two major phases:
 **Tech / implementation:**
 
 - Vitest (or Jest) for unit/integration.
-- Prisma test environment with a separate DB.
+- Drizzle test environment with a separate DB (or Docker container).
 - tRPC procedure tests:
   - Use caller pattern.
-  - Wrap each test in a Prisma transaction and rollback.
+  - Wrap each test in a transaction and rollback (if supported by driver/Drizzle) or use ephemeral DBs.
 - Playwright tests:
   - Use auth helpers to set up sessions.
   - Parametrize tests for common board operations.
@@ -485,6 +497,8 @@ The project is divided into two major phases:
   - Clear tech stack list.
   - Architecture overview (with Mermaid diagram).
   - “Why I built this” and “What I learned.”
+- Architecture Decision Records (ADRs):
+  - Log of major technical decisions (e.g., `docs/adr/001-why-sse.md`) to document the engineering thought process over time.
 - Architecture / design decisions doc:
   - Why tRPC over pure REST/GraphQL for internal API.
   - Why SSE vs WebSockets for real-time.
@@ -504,7 +518,7 @@ The project is divided into two major phases:
 By the time CollabSpace is complete with both MVP and Phase 2, it should explicitly cover:
 
 - **Modern React (hooks, suspense, App Router):** Next.js App Router, Server Components, Suspense, streaming.
-- **TypeScript across the stack:** TS in frontend, backend, shared types; tRPC + Prisma.
+- **TypeScript across the stack:** TS in frontend, backend, shared types; tRPC + Drizzle ORM.
 - **API design (REST or GraphQL):** tRPC for internal, plus small public REST API.
 - **Relational data modeling (PostgreSQL):** Rich schema with workspaces, boards, tasks, time entries, invites, activity logs.
 - **Authentication & authorization:** NextAuth, session management, workspace membership and roles.
