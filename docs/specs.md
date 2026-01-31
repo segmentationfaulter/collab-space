@@ -27,6 +27,7 @@
 - **UI components:** shadcn/ui (headless primitives styled with Tailwind)
 - **State management:**
   - React hooks for local state
+  - React Hook Form + Zod for complex forms
   - TanStack Query for server state (caching, optimistic updates)
 - **Data fetching & streaming:**
   - Server Components + Suspense for streaming and loading UI
@@ -78,15 +79,16 @@
 - CD:
   - Frontend/Backend: Vercel
   - Database & Redis: managed service (e.g., Railway, Render, Neon, Supabase)
-  - Worker: deployed as separate app or serverless function
+  - Worker: deployed as a long-running Containerized Service (Docker) - *Cannot be Serverless*.
 
 ### 2.8 Local Development
 
 - **Containerization:** Docker Compose for local infrastructure (PostgreSQL, Redis).
 - **Ease of Use:** Single command setup (`docker-compose up` + `npm run dev`) to demonstrate focus on Developer Experience (DX).
 
-### 2.9 Security
+### 2.9 Security & Quality
 
+- **Configuration:** Type-safe environment variables (`@t3-oss/env-nextjs`) to prevent runtime crashes.
 - **Validation:** Shared Zod schemas for client/server input validation (tRPC + REST).
 - **Rate Limiting:** Upstash Ratelimit or equivalent for public API and Auth routes.
 - **Headers:** Security headers (Helmet, CSP) configured for the Next.js app.
