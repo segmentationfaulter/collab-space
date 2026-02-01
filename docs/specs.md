@@ -164,7 +164,8 @@ The project is divided into two major phases:
 - Authentication & authorization
 - Background job processing (emails)
 - Basic CI/CD and deployment
-- Initial E2E tests
+- **Testing Infrastructure:** Vitest (Unit/Integration) and Playwright (E2E) setup from day one.
+- **Core Testing:** High-ROI integration tests for tRPC procedures and unit tests for critical business logic.
 
 ### 5.1 Authentication & Authorization
 
@@ -291,22 +292,25 @@ The project is divided into two major phases:
 - Environment variables in Vercel and hosting provider.
 - DB migrations via Drizzle Kit (run in deploy script or CI).
 
-### 5.8 Basic E2E Testing (MVP)
+### 5.8 Testing Pyramid – Core Coverage (MVP)
 
 **Features:**
 
-- Critical flows covered by Playwright:
+- **Infrastructure:** Vitest and Playwright configured in the monorepo.
+- **Unit Tests:** Core utilities and pure business logic (e.g., permission helper functions).
+- **Integration Tests:** tRPC procedures tested with a real test database (Postgres) and transaction rollbacks.
+- **E2E Tests:** Critical flows covered by Playwright:
   - Sign up / log in.
-  - Create workspace.
-  - Create board and tasks.
-  - Move a task between columns.
-  - Invite user (skip actual email; check DB state).
+  - Create workspace & board.
+  - Move a task between columns (Drag-and-drop).
+  - Invite user flow (DB state verification).
 
 **Tech / implementation:**
 
-- Playwright configuration.
-- Test environment DB (Postgres).
-- Page object model / helper abstractions to keep tests maintainable.
+- Vitest for unit/integration.
+- Playwright for E2E.
+- Test database environment with Drizzle migrations.
+- Page object model for maintainable E2E tests.
 
 ### 5.9 Logging & Basic Observability (MVP Level)
 
@@ -396,32 +400,24 @@ The project is divided into two major phases:
   - Lightweight client queue storing tRPC calls to replay.
   - On reconnect, flush queue; handle errors and conflicts gracefully.
 
-### 6.3 Testing Pyramid
+### 6.3 Extended Testing & Edge Cases
 
 **Features:**
 
-- Unit tests:
-  - Pure functions and business logic (e.g., time calculations, permission checks).
-  - Utilities for parsing mentions, due date warnings, etc.
-- Integration tests:
-  - tRPC procedures with test database and transaction rollback.
-  - BullMQ job processing tests with in-memory Redis or mocked provider.
-  - Key workflows: invite flow, permission checks, task assignment.
-- E2E tests:
-  - Extend MVP Playwright suite:
-    - Real-time updates (open board in two windows, verify second sees change).
-    - Offline behavior (simulate offline, perform action, go online, verify sync).
+- **Enhanced E2E:**
+  - Real-time updates (multi-window sync verification).
+  - Offline behavior (simulate offline, perform action, verify sync on reconnect).
+- **Complex Integration:**
+  - BullMQ job processing tests with real Redis/Worker interaction.
+  - Conflict resolution scenarios for "Best Effort" offline sync.
+- **Visual Regression:** Snapshot testing for critical UI components (Optional).
+- **Performance Testing:** Basic Lighthouse or custom scripts for critical path latency.
 
 **Tech / implementation:**
 
-- Vitest (or Jest) for unit/integration.
-- Drizzle test environment with a separate DB (or Docker container).
-- tRPC procedure tests:
-  - Use caller pattern.
-  - Wrap each test in a transaction and rollback (if supported by driver/Drizzle) or use ephemeral DBs.
-- Playwright tests:
-  - Use auth helpers to set up sessions.
-  - Parametrize tests for common board operations.
+- Playwright network interception for offline simulation.
+- Redis-mock or ephemeral Redis containers for worker tests.
+- Merge coverage reports across Vitest and Playwright.
 
 ### 6.4 Observability with OpenTelemetry
 
