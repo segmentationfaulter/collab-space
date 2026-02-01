@@ -84,6 +84,7 @@
 ### 2.8 Local Development
 
 - **Containerization:** Docker Compose for local infrastructure (PostgreSQL, Redis).
+- **Data Seeding:** Automated script (`npm run db:seed`) to populate the database with dummy workspaces, users, and tasks for immediate testing.
 - **Ease of Use:** Single command setup (`docker-compose up` + `npm run dev`) to demonstrate focus on Developer Experience (DX).
 
 ### 2.9 Security & Quality
