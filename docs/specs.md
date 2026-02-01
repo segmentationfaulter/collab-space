@@ -22,7 +22,7 @@
 ### 2.1 Frontend
 
 - **Design System:** See [@docs/design-system.md](./design-system.md) for color palette, typography, and layouts.
-- **Framework:** Next.js 15+ with App Router and React Server Components
+- **Framework:** Next.js 16+ with App Router and React Server Components
 - **Language:** TypeScript (strict mode)
 - **Styling:** Tailwind CSS
 - **UI components:** shadcn/ui (headless primitives styled with Tailwind)
