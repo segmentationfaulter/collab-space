@@ -6,7 +6,7 @@
 - The engineering workflow is defined in `@docs/workflow.md`.
 
 ## Current Focus
-- **Active Feature:** None (See: `docs/plans/00-scaffold.md`)
+- **Active Feature:** Project Scaffold (See: `docs/plans/00-scaffold.md`)
 
 ## Git Conventions
 

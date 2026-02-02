@@ -10,10 +10,10 @@
 ## Tasks
 
 ### Task 1: Monorepo & Next.js Init
-- [ ] Initialize Turborepo (using `pnpm`).
-- [ ] Create `apps/web` (Next.js 16, React 19.x, TS).
-- [ ] Configure Tailwind v4 in `apps/web`.
-- [ ] Clean up default boilerplate code.
+- [x] Initialize Turborepo (using `pnpm`).
+- [x] Create `apps/web` (Next.js 16, React 19.x, TS).
+- [x] Configure Tailwind v4 in `apps/web`.
+- [x] Clean up default boilerplate code.
 - **Verification:** `pnpm dev` starts the web app and it renders a blank page with Tailwind styles working.
 
 ### Task 2: Local Infrastructure
