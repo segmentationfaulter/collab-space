@@ -37,18 +37,12 @@
 
 ### Task 4: Testing Infrastructure
 
-- [ ] Install Vitest in `apps/web`.
-
-- [ ] Create `vitest.config.ts`.
-
-- [ ] Create a dummy unit test (`sum.test.ts`).
-
-- [ ] Install Playwright.
-
-- [ ] Create `playwright.config.ts`.
-
-- [ ] Create a dummy E2E test (visits homepage).
-
+- [x] Install Vitest in `apps/web`.
+- [x] Create `vitest.config.ts`.
+- [x] Create a dummy unit test (`sum.test.ts`).
+- [x] Install Playwright.
+- [x] Create `playwright.config.ts`.
+- [x] Create a dummy E2E test (visits homepage).
 - **Verification:** `pnpm test` runs unit tests and `pnpm test:e2e` runs Playwright tests successfully.
 
 ### Task 5: DX & Git Hooks
