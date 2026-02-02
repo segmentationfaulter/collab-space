@@ -20,10 +20,10 @@
 
 ### Task 2: Local Infrastructure
 
-- [ ] Create `docker-compose.yml` in root.
-- [ ] Define `postgres` service (alpine image).
-- [ ] Define `redis` service (alpine image).
-- [ ] Add `.env.example` and `.env` for local secrets.
+- [x] Create `docker-compose.yml` in root.
+- [x] Define `postgres` service (alpine image).
+- [x] Define `redis` service (alpine image).
+- [x] Add `.env.example` and `.env` for local secrets.
 - **Verification:** `docker-compose up -d` starts both services without error.
 
 ### Task 3: Database & ORM Setup
