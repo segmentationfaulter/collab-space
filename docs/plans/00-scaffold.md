@@ -47,12 +47,8 @@
 
 ### Task 5: DX & Git Hooks
 
-- [ ] Install `husky` and `lint-staged` in the root.
-
-- [ ] Initialize Husky (`npx husky init`).
-
-- [ ] Configure `lint-staged` in `package.json` to run `prettier --write` on staged files.
-
-- [ ] Update `.husky/pre-commit` to run `npx lint-staged`.
-
+- [x] Install `husky` and `lint-staged` in the root.
+- [x] Initialize Husky (`npx husky init`).
+- [x] Configure `lint-staged` in `package.json` to run `prettier --write` on staged files.
+- [x] Update `.husky/pre-commit` to run `npx lint-staged`.
 - **Verification:** Stage a messy file, try to commit, and verify it is formatted automatically.
