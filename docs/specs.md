@@ -80,7 +80,7 @@
 - CD:
   - Frontend/Backend: Vercel
   - Database & Redis: managed service (e.g., Railway, Render, Neon, Supabase)
-  - Worker: deployed as a long-running Containerized Service (Docker) - *Cannot be Serverless*.
+  - Worker: deployed as a long-running Containerized Service (Docker) - _Cannot be Serverless_.
 
 ### 2.8 Local Development
 
@@ -94,7 +94,6 @@
 - **Validation:** Shared Zod schemas for client/server input validation (tRPC + REST).
 - **Rate Limiting:** Upstash Ratelimit or equivalent for public API and Auth routes.
 - **Headers:** Security headers (Helmet, CSP) configured for the Next.js app.
-
 
 ---
 
@@ -381,7 +380,7 @@ The project is divided into two major phases:
 - Mutation queue (Scope Constrained):
   - Optimistic UI updates for immediate feedback.
   - Simple "queue and retry" mechanism (Last-Write-Wins strategy).
-  - *Note:* Complex conflict resolution (CRDTs) is explicitly out of scope for this portfolio project to maintain focus on core features.
+  - _Note:_ Complex conflict resolution (CRDTs) is explicitly out of scope for this portfolio project to maintain focus on core features.
   - Queue mutations in IndexedDB/local storage when offline.
   - Sync mutations when back online (best effort).
 
