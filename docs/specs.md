@@ -37,9 +37,10 @@
 
 - **API layer:** tRPC (end-to-end type safety)
 - **Runtime:** Node.js via Next.js server
-- **Authentication:** Auth.js / NextAuth.js v5
+- **Authentication:** Better Auth
   - Credentials (email + password)
   - GitHub OAuth
+  - **Multi-tenancy:** Better Auth Organizations plugin for Workspace management.
 
 ### 2.3 Data, Background Jobs, and Real-Time
 
@@ -173,19 +174,20 @@ The project is divided into two major phases:
 
 - Sign up with email + password (hashed in DB).
 - Login with email + password.
-- Login with GitHub OAuth (via NextAuth).
-- Session management using NextAuth + DB or Redis adapter.
-- Workspace membership:
+- Login with GitHub OAuth.
+- Session management via Better Auth (database-backed).
+- Workspace membership (via Organizations plugin):
   - Users belong to workspaces.
-  - Roles: Owner, Member.
+  - Roles: owner, admin, member.
   - Authorization middleware:
     - Only workspace members can view its data.
-    - Only Owners can invite/remove members or change roles.
+    - Only Owners/Admins can invite/remove members or change roles.
 
 **Tech / implementation:**
 
-- NextAuth.js configuration with Credentials and GitHub providers.
-- Drizzle schemas: User, Account, Session (using `@auth/drizzle-adapter`).
+- Better Auth configuration with Credentials and GitHub providers.
+- `@better-auth/organizations` plugin for multi-tenancy.
+- Drizzle schemas generated/mapped for Better Auth requirements.
 - tRPC middleware for `isWorkspaceMember` / `isWorkspaceOwner`.
 
 ### 5.2 Workspace & Organization
@@ -201,15 +203,15 @@ The project is divided into two major phases:
 
 **Tech / implementation:**
 
-- Models: Workspace, Member, Invite.
-- Background job: BullMQ sends invite emails.
-- Invite acceptance flow: route handler / tRPC mutation.
+- Better Auth Organizations plugin API for CRUD and Invitations.
+- Background job: BullMQ sends invite emails (triggered by Better Auth hooks or custom logic).
+- Invite acceptance flow: Better Auth built-in invitation routes.
 
 ### 5.3 Boards, Columns, and Tasks (Kanban)
 
 **Features:**
 
-- Create boards within a workspace.
+- Create boards within a workspace (Organization).
 - Columns: default Todo / In Progress / Done (customizable later).
 - Tasks:
   - title, description, priority, labels, due date, assignee.
@@ -219,7 +221,7 @@ The project is divided into two major phases:
 
 **Tech / implementation:**
 
-- Drizzle schemas: Board, Column, Task.
+- Drizzle schemas: Board, Column, Task. `Board` is linked to Better Auth `Organization`.
 - tRPC procedures for CRUD and reorder operations.
 - Drag-and-drop using dnd-kit or similar.
 - TanStack Query for client state and optimistic updates.
@@ -246,7 +248,7 @@ The project is divided into two major phases:
 **Features:**
 
 - Emails sent on:
-  - Workspace invite sent.
+  - Workspace (Organization) invite sent.
   - Task assigned to user.
   - Due date approaching (simple scheduled job).
 - Job retries on failure.
@@ -255,6 +257,7 @@ The project is divided into two major phases:
 **Tech / implementation:**
 
 - BullMQ producer enqueues jobs to Redis.
+- Invite emails are triggered by Better Auth's built-in invitation events/hooks.
 - Worker app (in Turborepo) consumes jobs and sends emails via Resend/SendGrid.
 - Jobs defined as TypeScript interfaces with Zod schemas.
 - Logs for job start, success, failure, retry.
@@ -301,7 +304,7 @@ The project is divided into two major phases:
 - **Integration Tests:** tRPC procedures tested with a real test database (Postgres) and transaction rollbacks.
 - **E2E Tests:** Critical flows covered by Playwright:
   - Sign up / log in.
-  - Create workspace & board.
+  - Create workspace (Organization) & board.
   - Move a task between columns (Drag-and-drop).
   - Invite user flow (DB state verification).
 
@@ -446,10 +449,10 @@ The project is divided into two major phases:
 **Features:**
 
 - A small, well-documented public REST API:
-  - GET /api/public/workspaces/:id/boards
+  - GET /api/public/organizations/:id/boards
   - GET /api/public/boards/:id/tasks
   - Optional: webhook-style event stream for external integrations.
-- Authentication via Bearer token (API key per workspace).
+- Authentication via Bearer token (API key per Organization).
 
 **Purpose:**
 
@@ -519,8 +522,8 @@ By the time CollabSpace is complete with both MVP and Phase 2, it should explici
 - **Modern React (hooks, suspense, App Router):** Next.js App Router, Server Components, Suspense, streaming.
 - **TypeScript across the stack:** TS in frontend, backend, shared types; tRPC + Drizzle ORM.
 - **API design (REST or GraphQL):** tRPC for internal, plus small public REST API.
-- **Relational data modeling (PostgreSQL):** Rich schema with workspaces, boards, tasks, time entries, invites, activity logs.
-- **Authentication & authorization:** NextAuth, session management, workspace membership and roles.
+- **Relational data modeling (PostgreSQL):** Rich schema with organizations, boards, tasks, time entries, invites, activity logs.
+- **Authentication & authorization:** Better Auth, session management, organization membership and roles.
 - **Real-time communication:** SSE for live board and activity updates.
 - **Background job processing:** BullMQ + Redis worker for emails, scheduled tasks.
 - **Offline-first design:** PWA with service worker, caching strategies, offline UI, mutation queue.

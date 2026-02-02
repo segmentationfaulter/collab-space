@@ -8,7 +8,11 @@
 
 ## Current Focus
 
-- **Active Feature:** Project Scaffold (See: `docs/plans/00-scaffold.md`)
+- **Active Feature:** Authentication (See: `docs/plans/01-authentication.md`)
+
+## Resources
+
+- **Better Auth Documentation (LLM-friendly):** https://www.better-auth.com/llms.txt
 
 ## Git Conventions
 
