@@ -28,11 +28,11 @@
 
 ### Task 3: Database & ORM Setup
 
-- [ ] Install Drizzle ORM, `drizzle-kit`, and `postgres` driver in `apps/web`.
-- [ ] Create `drizzle.config.ts`.
-- [ ] Create basic `db/index.ts` connection client.
-- [ ] Create a "dummy" schema (e.g., `schema.ts` with a `users` table) just to test connection.
-- [ ] Run a migration push.
+- [x] Install Drizzle ORM, `drizzle-kit`, and `postgres` driver in `apps/web`.
+- [x] Create `drizzle.config.ts`.
+- [x] Create basic `db/index.ts` connection client.
+- [x] Create a "dummy" schema (e.g., `schema.ts` with a `users` table) just to test connection.
+- [x] Run a migration push.
 - **Verification:** `pnpm db:push` succeeds and creates the table in the local Postgres container.
 
 ### Task 4: Testing Infrastructure
