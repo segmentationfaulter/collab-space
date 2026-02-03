@@ -40,3 +40,6 @@ coverage/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# TODO's
+TODOs.md

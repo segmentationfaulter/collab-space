@@ -1,22 +1,18 @@
+"use client";
+
+import { trpc } from "@/trpc/client";
+
 export default function Home() {
+  const hello = trpc.hello.useQuery({ text: "from tRPC" });
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
-      <main className="flex flex-col items-center gap-4 text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl">
-          CollabSpace
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          Project collaboration for high-performance teams.
+    <main className="flex min-h-screen flex-col items-center justify-center p-24">
+      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
+        <h1 className="text-4xl font-bold">CollabSpace</h1>
+        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-linear-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
+          {hello.data ? hello.data.greeting : "Loading tRPC..."}
         </p>
-        <div className="flex gap-4">
-          <button className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
-            Get Started
-          </button>
-          <button className="rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-            Documentation
-          </button>
-        </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

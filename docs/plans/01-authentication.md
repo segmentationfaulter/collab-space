@@ -12,10 +12,10 @@
 
 ### Task 1: tRPC Setup
 
-- [ ] Install `@trpc/server`, `@trpc/client`, `@trpc/react-query`, `@trpc/next`, and `zod`.
-- [ ] Initialize tRPC on the server (`apps/web/src/server/trpc.ts`).
-- [ ] Create the root router and a `public` vs `protected` procedure logic.
-- [ ] Setup tRPC React provider in `apps/web/src/app/layout.tsx`.
+- [x] Install `@trpc/server`, `@trpc/client`, `@trpc/react-query`, `@trpc/next`, and `zod`.
+- [x] Initialize tRPC on the server (`apps/web/src/server/trpc.ts`).
+- [x] Create the root router and a `public` vs `protected` procedure logic.
+- [x] Setup tRPC React provider (in `apps/web/src/components/providers.tsx`).
 - **Verification:** Create a `hello` procedure and call it from the homepage.
 
 ### Task 2: Better Auth Setup

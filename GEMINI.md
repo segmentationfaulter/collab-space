@@ -13,6 +13,8 @@
 ## Resources
 
 - **Better Auth Documentation (LLM-friendly):** https://www.better-auth.com/llms.txt
+- **Next.js Documentation (LLM-friendly):** https://nextjs.org/docs/llms.txt
+- **Drizzle Documentation (LLM-friendly):** https://orm.drizzle.team/llms.txt
 
 ## Git Conventions
 
