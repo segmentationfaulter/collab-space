@@ -18,25 +18,39 @@
 - [x] Setup tRPC React provider (in `apps/web/src/components/providers.tsx`).
 - **Verification:** Create a `hello` procedure and call it from the homepage.
 
-### Task 2: Better Auth Setup
+### Task 2: Email/Password Authentication
 
-- [ ] Install `better-auth`.
-- [ ] Configure `auth` instance in `apps/web/src/lib/auth.ts` with Drizzle adapter.
-- [ ] Enable `organizations` and `username` plugins.
-- [ ] Define Better Auth tables in `apps/web/src/db/schema.ts` (mapping required tables).
-- [ ] Configure GitHub OAuth (Environment variables).
-- [ ] Set up the API route handler (`apps/web/src/app/api/auth/[...all]/route.ts`).
-- **Verification:** Run `pnpm db:push` to ensure tables are created and `auth.api.getSession()` works.
+- [x] Configure `auth` instance in `apps/web/src/lib/auth.ts` (Core + Email/Pass only).
+- [x] Define basic User, Session, Account, Verification tables in `apps/web/src/db/schema.ts`.
+- [x] Set up the API route handler (`apps/web/src/app/api/auth/[...all]/route.ts`).
+- [x] Install `lucide-react` and `shadcn/ui` components (Button, Input, Card, Form).
+- [x] Implement `SignUp` page (Email, Password).
+- [x] Implement `Login` page.
+- [x] Implement "Logout" button.
+- **Verification:** User can sign up, login, and see their session persist.
 
-### Task 3: Authentication UI
+### Task 3: Social Login (GitHub)
 
-- [ ] Install `lucide-react` and `shadcn/ui` components (Button, Input, Card, Form).
-- [ ] Implement `SignUp` page (Email, Username, Password).
-- [ ] Implement `Login` page.
-- [ ] Implement "Logout" button in a basic dashboard header.
-- **Verification:** Manually sign up a user and verify their record exists in the database.
+- [ ] Add GitHub provider to `apps/web/src/lib/auth.ts`.
+- [ ] Configure Environment variables.
+- [ ] Update Login/Signup UI to include "Continue with GitHub".
+- **Verification:** User can login with GitHub account.
 
-### Task 4: Integration & Protection
+### Task 4: Usernames
+
+- [ ] Enable `username` plugin in `apps/web/src/lib/auth.ts`.
+- [ ] Update database schema to support usernames.
+- [ ] Update SignUp UI to collect username.
+- **Verification:** User has a unique username after signup.
+
+### Task 5: Organizations
+
+- [ ] Enable `organization` plugin in `apps/web/src/lib/auth.ts`.
+- [ ] Update database schema for Organizations, Members, Invitations.
+- [ ] Create UI for creating/switching organizations.
+- **Verification:** User can create an organization and invite members.
+
+### Task 6: Integration & Protection
 
 - [ ] Create a `protectedProcedure` in tRPC that uses Better Auth session.
 - [ ] Update the homepage to show user info if logged in, or redirect to login.

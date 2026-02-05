@@ -1,18 +1,54 @@
 "use client";
 
-import { trpc } from "@/trpc/client";
+import { authClient } from "@/lib/auth-client";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  const hello = trpc.hello.useQuery({ text: "from tRPC" });
+  const { data: session, isPending } = authClient.useSession();
+  const router = useRouter();
+
+  if (isPending) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Loading...
+      </div>
+    );
+  }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <h1 className="text-4xl font-bold">CollabSpace</h1>
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-linear-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          {hello.data ? hello.data.greeting : "Loading tRPC..."}
-        </p>
-      </div>
-    </main>
+    <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-8">
+      <h1 className="text-4xl font-bold">Collab Space</h1>
+      {session ? (
+        <div className="flex flex-col items-center gap-4">
+          <p>
+            Logged in as: {session.user.name} ({session.user.email})
+          </p>
+          <Button
+            onClick={async () => {
+              await authClient.signOut({
+                fetchOptions: {
+                  onSuccess: () => {
+                    router.refresh();
+                  },
+                },
+              });
+            }}
+          >
+            Logout
+          </Button>
+        </div>
+      ) : (
+        <div className="flex gap-4">
+          <Link href="/sign-in">
+            <Button variant="outline">Sign In</Button>
+          </Link>
+          <Link href="/sign-up">
+            <Button>Sign Up</Button>
+          </Link>
+        </div>
+      )}
+    </div>
   );
 }

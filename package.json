@@ -6,7 +6,9 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:push": "pnpm --fileter web db:push",
+    "db:studio": "pnpm --filter web db:studio"
   },
   "devDependencies": {
     "husky": "^9.1.7",

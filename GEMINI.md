@@ -15,8 +15,4 @@
 - **Better Auth Documentation (LLM-friendly):** https://www.better-auth.com/llms.txt
 - **Next.js Documentation (LLM-friendly):** https://nextjs.org/docs/llms.txt
 - **Drizzle Documentation (LLM-friendly):** https://orm.drizzle.team/llms.txt
-
-## Git Conventions
-
-- **Seeding:** Ensure `npm run db:seed` is always functional to populate a dev environment.
-- **Security:** Sanitize all user-generated content (especially Markdown) to prevent XSS.
+- **Shadcn UI Documentation (LLM-friendly):** https://ui.shadcn.com/llms.txt
