@@ -27,14 +27,13 @@ export default function SignIn() {
       {
         email,
         password,
-        callbackURL: "/dashboard",
       },
       {
         onRequest: () => {
           setLoading(true);
         },
         onSuccess: () => {
-          router.push("/dashboard");
+          router.push("/");
         },
         onError: (ctx) => {
           alert(ctx.error.message);
