@@ -3,7 +3,6 @@
 ## Source of Truth
 
 - The primary specification for this project is located at `@docs/specs.md`. Always refer to it for architectural and feature decisions.
-- The design system standards are located at `@docs/design-system.md`.
 - The engineering workflow is defined in `@docs/workflow.md`.
 
 ## Current Focus
