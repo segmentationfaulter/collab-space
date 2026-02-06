@@ -50,7 +50,7 @@ export default function SignIn() {
         <CardHeader>
           <CardTitle className="text-2xl">Sign In</CardTitle>
           <CardDescription>
-            Enter your email below to sign in to your account
+            Enter your email and password below to sign in to your account
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
