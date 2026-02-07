@@ -26,10 +26,11 @@ export async function signInAction(
       },
       headers: await headers(),
     });
-    redirect("/");
   } catch (error) {
     return handleError(error);
   }
+
+  redirect("/");
 }
 
 export async function signUpAction(
@@ -53,10 +54,11 @@ export async function signUpAction(
       },
       headers: await headers(),
     });
-    redirect("/");
   } catch (error) {
     return handleError(error);
   }
+
+  redirect("/");
 }
 
 function handleError(error: unknown): AuthFormState {
