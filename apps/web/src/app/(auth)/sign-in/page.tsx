@@ -11,15 +11,44 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signInAction } from "@/lib/auth-actions";
-import { useActionState } from "react";
-
-const initialState = {
-  error: "",
-};
+import { authClient } from "@/lib/auth-client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignIn() {
-  const [state, action, isPending] = useActionState(signInAction, initialState);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isPending, setIsPending] = useState(false);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.SubmitEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsPending(true);
+
+    try {
+      await authClient.signIn.email(
+        {
+          email,
+          password,
+        },
+        {
+          onSuccess: () => {
+            router.push("/");
+            router.refresh();
+          },
+          onError: (ctx) => {
+            setError(ctx.error.message || "Failed to sign in");
+            setIsPending(false);
+          },
+        },
+      );
+    } catch {
+      setError("An unexpected error occurred");
+      setIsPending(false);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -30,7 +59,7 @@ export default function SignIn() {
             Enter your email below to sign in to your account
           </CardDescription>
         </CardHeader>
-        <form action={action}>
+        <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -39,16 +68,23 @@ export default function SignIn() {
                 name="email"
                 type="email"
                 placeholder="m@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" required />
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
-            {state?.error && (
-              <p className="text-sm text-red-500">{state.error}</p>
-            )}
+            {error && <p className="text-sm text-red-500">{error}</p>}
           </CardContent>
           <CardFooter className="mt-4">
             <Button className="w-full" type="submit" disabled={isPending}>
