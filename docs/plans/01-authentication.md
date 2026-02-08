@@ -31,9 +31,9 @@
 
 ### Task 3: Social Login (GitHub)
 
-- [ ] Add GitHub provider to `apps/web/src/lib/auth.ts`.
-- [ ] Configure Environment variables.
-- [ ] Update Login/Signup UI to include "Continue with GitHub".
+- [x] Add GitHub provider to `apps/web/src/lib/auth.ts`.
+- [x] Configure Environment variables.
+- [x] Update Login/Signup UI to include "Continue with GitHub".
 - **Verification:** User can login with GitHub account.
 
 ### Task 4: Usernames
