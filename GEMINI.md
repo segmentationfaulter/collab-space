@@ -9,8 +9,10 @@
 
 - **Active Feature:** Authentication (See: `docs/plans/01-authentication.md`)
 
-## Resources
+## Rules & Mandates
 
+- **Strict Task Approval:** NEVER proceed to the next task in a plan until the user has explicitly approved the implementation of the current task.
+- **Workflow Adherence:** Always follow the Execution Loop defined in `@docs/workflow.md` (Verify -> Commit -> Approval -> Next Task).
 - **Better Auth Documentation (LLM-friendly):** https://www.better-auth.com/llms.txt
 - **Next.js Documentation (LLM-friendly):** https://nextjs.org/docs/llms.txt
 - **Drizzle Documentation (LLM-friendly):** https://orm.drizzle.team/llms.txt

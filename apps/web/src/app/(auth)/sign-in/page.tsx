@@ -86,9 +86,31 @@ export default function SignIn() {
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
           </CardContent>
-          <CardFooter className="mt-4">
+          <CardFooter className="flex flex-col gap-4 mt-4">
             <Button className="w-full" type="submit" disabled={isPending}>
               {isPending ? "Signing In..." : "Sign In"}
+            </Button>
+            <div className="relative w-full">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-gray-100 px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              className="w-full"
+              type="button"
+              onClick={async () => {
+                await authClient.signIn.social({
+                  provider: "github",
+                });
+              }}
+            >
+              Continue with GitHub
             </Button>
           </CardFooter>
         </form>
