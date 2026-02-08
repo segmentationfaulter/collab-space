@@ -17,7 +17,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function SignIn() {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isPending, setIsPending] = useState(false);
@@ -28,23 +28,37 @@ export default function SignIn() {
     setError("");
     setIsPending(true);
 
+    const isEmail = identifier.includes("@");
+
     try {
-      await authClient.signIn.email(
-        {
-          email,
-          password,
+      const commonOptions = {
+        onSuccess: () => {
+          router.push("/");
+          router.refresh();
         },
-        {
-          onSuccess: () => {
-            router.push("/");
-            router.refresh();
-          },
-          onError: (ctx) => {
-            setError(ctx.error.message || "Failed to sign in");
-            setIsPending(false);
-          },
+        onError: (ctx: { error: { message?: string } }) => {
+          setError(ctx.error.message || "Failed to sign in");
+          setIsPending(false);
         },
-      );
+      };
+
+      if (isEmail) {
+        await authClient.signIn.email(
+          {
+            email: identifier,
+            password,
+          },
+          commonOptions,
+        );
+      } else {
+        await authClient.signIn.username(
+          {
+            username: identifier,
+            password,
+          },
+          commonOptions,
+        );
+      }
     } catch {
       setError("An unexpected error occurred");
       setIsPending(false);
@@ -57,20 +71,19 @@ export default function SignIn() {
         <CardHeader>
           <CardTitle className="text-2xl">Sign In</CardTitle>
           <CardDescription>
-            Enter your email below to sign in to your account
+            Enter your email or username below to sign in to your account
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="identifier">Email or Username</Label>
               <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="m@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="identifier"
+                name="identifier"
+                placeholder="m@example.com or johndoe"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 required
               />
             </div>

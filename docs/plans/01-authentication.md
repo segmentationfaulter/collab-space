@@ -38,9 +38,9 @@
 
 ### Task 4: Usernames
 
-- [ ] Enable `username` plugin in `apps/web/src/lib/auth.ts`.
-- [ ] Update database schema to support usernames.
-- [ ] Update SignUp UI to collect username.
+- [x] Enable `username` plugin in `apps/web/src/lib/auth.ts`.
+- [x] Update database schema to support usernames.
+- [x] Update SignUp UI to collect username.
 - **Verification:** User has a unique username after signup.
 
 ### Task 5: Organizations

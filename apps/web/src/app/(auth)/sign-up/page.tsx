@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 
 export default function SignUp() {
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -35,6 +36,7 @@ export default function SignUp() {
           email,
           password,
           name,
+          username,
         },
         {
           onSuccess: () => {
@@ -72,6 +74,17 @@ export default function SignUp() {
                 placeholder="John Doe"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                name="username"
+                placeholder="johndoe"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
