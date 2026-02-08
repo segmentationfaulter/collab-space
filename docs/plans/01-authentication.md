@@ -43,17 +43,25 @@
 - [x] Update SignUp UI to collect username.
 - **Verification:** User has a unique username after signup.
 
-### Task 5: Organizations
+### Task 5: Organizations (Multi-tenancy)
 
 - [ ] Enable `organization` plugin in `apps/web/src/lib/auth.ts`.
-- [ ] Update database schema for Organizations, Members, Invitations.
-- [ ] Create UI for creating/switching organizations.
-- **Verification:** User can create an organization and invite members.
+- [ ] Configure Roles & Permissions (Owner, Admin, Member) in `auth.ts`.
+- [ ] Update database schema for Organizations, Members, and Invitations.
+- [ ] Create UI for creating and switching Organizations (Workspaces).
+- [ ] Implement Invitation Flow:
+  - [ ] UI to invite members by email.
+  - [ ] Route handler to accept invitations.
+- **Verification:** User can create an organization, switch between them, and successfully invite/add a member.
 
-### Task 6: Integration & Protection
+### Task 6: Integration & Protection (tRPC & Middleware)
 
 - [ ] Create a `protectedProcedure` in tRPC that uses Better Auth session.
-- [ ] Update the homepage to show user info if logged in, or redirect to login.
+- [ ] Implement Granular Middlewares:
+  - [ ] `workspaceMemberProcedure`: Ensures user belongs to the current organization.
+  - [ ] `workspaceOwnerProcedure`: Ensures user is an Owner or Admin.
+- [ ] Update tRPC context to include the `activeOrganizationId`.
+- [ ] Update the homepage to show user info and current workspace, or redirect to login.
 - [ ] Add a Vitest test for the auth-protected tRPC procedure.
-- [ ] Add a Playwright E2E test for the full Sign-up -> Login -> Dashboard flow.
+- [ ] Add a Playwright E2E test for the full Sign-up -> Create Workspace -> Invite Member flow.
 - **Verification:** `pnpm test` and `pnpm test:e2e` pass.
