@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { Github } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -87,7 +88,11 @@ export default function SignIn() {
             {error && <p className="text-sm text-red-500">{error}</p>}
           </CardContent>
           <CardFooter className="flex flex-col gap-4 mt-4">
-            <Button className="w-full" type="submit" disabled={isPending}>
+            <Button
+              className="w-full cursor-pointer"
+              type="submit"
+              disabled={isPending}
+            >
               {isPending ? "Signing In..." : "Sign In"}
             </Button>
             <div className="relative w-full">
@@ -102,14 +107,16 @@ export default function SignIn() {
             </div>
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full flex items-center justify-center gap-2 cursor-pointer"
               type="button"
               onClick={async () => {
                 await authClient.signIn.social({
                   provider: "github",
+                  callbackURL: "/",
                 });
               }}
             >
+              <Github className="w-4 h-4" />
               Continue with GitHub
             </Button>
           </CardFooter>
