@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Plus, ChevronsUpDown, Check, Building2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -25,14 +25,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function OrganizationSwitcher({
-  isCreateDialogOpen,
-  onCreateDialogChange,
-}: {
-  isCreateDialogOpen: boolean;
-  onCreateDialogChange: (open: boolean) => void;
-}) {
+export function OrganizationSwitcher() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const isCreateDialogOpen = searchParams.get("create") === "true";
+
+  const setCreateDialogOpen = (open: boolean) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (open) {
+      params.set("create", "true");
+    } else {
+      params.delete("create");
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   const { data: organizations, isPending: isLoadingOrgs } =
     authClient.useListOrganizations();
   const { data: activeOrg, isPending: isLoadingActive } =
@@ -56,7 +65,7 @@ export function OrganizationSwitcher({
         },
         {
           onSuccess: () => {
-            onCreateDialogChange(false);
+            setCreateDialogOpen(false);
             setNewOrgName("");
             setNewOrgSlug("");
             setIsSlugModified(false);
@@ -142,7 +151,7 @@ export function OrganizationSwitcher({
           ))}
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={() => onCreateDialogChange(true)}
+            onClick={() => setCreateDialogOpen(true)}
             className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
@@ -154,7 +163,7 @@ export function OrganizationSwitcher({
       <Dialog
         open={isCreateDialogOpen}
         onOpenChange={(open) => {
-          onCreateDialogChange(open);
+          setCreateDialogOpen(open);
           if (!open) {
             setNewOrgName("");
             setNewOrgSlug("");
@@ -210,7 +219,7 @@ export function OrganizationSwitcher({
               <Button
                 variant="outline"
                 type="button"
-                onClick={() => onCreateDialogChange(false)}
+                onClick={() => setCreateDialogOpen(false)}
               >
                 Cancel
               </Button>
