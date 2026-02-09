@@ -1,15 +1,17 @@
-"use client";
-
 import Link from "next/link";
 import { Building2 } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { Button } from "@/components/ui/button";
 import { OrganizationSwitcher } from "@/components/organization-switcher";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LogoutButton } from "@/components/logout-button";
 
-export function SiteHeader() {
-  const { data: session, isPending } = authClient.useSession();
+export async function SiteHeader() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 sticky top-0 z-50">
@@ -19,29 +21,12 @@ export function SiteHeader() {
           <span>CollabSpace</span>
         </Link>
         <nav className="ml-auto flex items-center gap-4">
-          {isPending ? (
-            <Skeleton className="h-9 w-24" />
-          ) : session ? (
+          {session ? (
             <>
               <Suspense fallback={<Skeleton className="h-10 w-40" />}>
                 <OrganizationSwitcher />
               </Suspense>
-              <Button
-                variant="ghost"
-                className="cursor-pointer"
-                size="sm"
-                onClick={async () => {
-                  await authClient.signOut({
-                    fetchOptions: {
-                      onSuccess: () => {
-                        window.location.href = "/";
-                      },
-                    },
-                  });
-                }}
-              >
-                Logout
-              </Button>
+              <LogoutButton />
             </>
           ) : (
             <div className="flex gap-4">
