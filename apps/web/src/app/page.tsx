@@ -2,7 +2,6 @@
 
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { OrganizationSwitcher } from "@/components/organization-switcher";
 import { Building2, Plus } from "lucide-react";
@@ -11,33 +10,36 @@ import { useEffect } from "react";
 export default function Home() {
   const { data: session, isPending: isSessionPending } =
     authClient.useSession();
-  const { data: organizations, isPending: isOrgsPending } =
+  const { data: organizations, isPending: loadingOrganizations } =
     authClient.useListOrganizations();
-  const { data: activeOrg, isPending: isActivePending } =
+  const { data: activeOrg, isPending: loadingActiveOrg } =
     authClient.useActiveOrganization();
 
   useEffect(() => {
     if (
       session &&
-      !isOrgsPending &&
+      !loadingOrganizations &&
       organizations &&
       organizations.length > 0
     ) {
-      const isActualMember =
-        activeOrg && organizations.some((org) => org.id === activeOrg.id);
-
-      if (!isActualMember && !isActivePending) {
+      if (!loadingActiveOrg) {
         authClient.organization.setActive({
           organizationId: organizations[0].id,
         });
       }
     }
-  }, [session, activeOrg, organizations, isOrgsPending, isActivePending]);
+  }, [
+    session,
+    activeOrg,
+    organizations,
+    loadingOrganizations,
+    loadingActiveOrg,
+  ]);
 
   const isPending =
     isSessionPending ||
-    isOrgsPending ||
-    isActivePending ||
+    loadingOrganizations ||
+    loadingActiveOrg ||
     (!!session && !!organizations && organizations.length > 0 && !activeOrg);
 
   if (isPending) {

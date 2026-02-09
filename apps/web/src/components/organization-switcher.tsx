@@ -108,7 +108,7 @@ export function OrganizationSwitcher() {
               )}
             </div>
             <div className="flex flex-col items-start text-sm leading-tight">
-              <span className="font-semibold truncate max-w-[120px]">
+              <span className="font-semibold truncate max-w-30">
                 {activeOrg?.name || "Select Workspace"}
               </span>
             </div>
