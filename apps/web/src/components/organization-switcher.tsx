@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCreateOrgDialog } from "@/hooks/use-create-org-dialog";
 import { Organization } from "@/lib/auth";
+import { toast } from "sonner";
 
 export function OrganizationSwitcher({
   organizations,
@@ -64,10 +65,11 @@ export function OrganizationSwitcher({
             setNewOrgName("");
             setNewOrgSlug("");
             setIsSlugModified(false);
+            toast.success("Organization created successfully");
             router.refresh();
           },
           onError: (ctx) => {
-            alert(ctx.error.message);
+            toast.error(ctx.error.message);
           },
         },
       );

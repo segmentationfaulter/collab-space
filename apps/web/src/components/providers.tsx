@@ -8,6 +8,7 @@ import {
 import { httpBatchLink } from "@trpc/client";
 import React, { useState } from "react";
 import { trpc } from "@/trpc/client";
+import { Toaster } from "@/components/ui/sonner";
 
 export function makeQueryClient() {
   return new QueryClient({
@@ -51,7 +52,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        <Toaster richColors closeButton position="top-right" />
+      </QueryClientProvider>
     </trpc.Provider>
   );
 }
