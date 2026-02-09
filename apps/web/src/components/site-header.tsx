@@ -9,9 +9,22 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LogoutButton } from "@/components/logout-button";
 
 export async function SiteHeader() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const requestHeaders = await headers();
+  const [session, organizations] = await Promise.all([
+    auth.api.getSession({ headers: requestHeaders }),
+    auth.api.listOrganizations({ headers: requestHeaders }),
+  ]);
+
+  if (organizations && organizations.length > 0) {
+    const firstOrg = organizations[0];
+    await auth.api.setActiveOrganization({
+      body: {
+        organizationId: firstOrg.id,
+        organizationSlug: firstOrg.slug,
+      },
+      headers: requestHeaders,
+    });
+  }
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 sticky top-0 z-50">
@@ -24,7 +37,7 @@ export async function SiteHeader() {
           {session ? (
             <>
               <Suspense fallback={<Skeleton className="h-10 w-40" />}>
-                <OrganizationSwitcher />
+                <OrganizationSwitcher organizations={organizations} />
               </Suspense>
               <LogoutButton />
             </>

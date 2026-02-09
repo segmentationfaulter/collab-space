@@ -27,3 +27,5 @@ export const auth = betterAuth({
     },
   },
 });
+
+export type Organization = typeof auth.$Infer.Organization;

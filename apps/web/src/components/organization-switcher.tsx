@@ -25,21 +25,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCreateOrgDialog } from "@/hooks/use-create-org-dialog";
+import { Organization } from "@/lib/auth";
 
-export function OrganizationSwitcher() {
+export function OrganizationSwitcher({
+  organizations,
+}: {
+  organizations: Organization[];
+}) {
   const router = useRouter();
   const { isOpen: isCreateDialogOpen, setOpen: setCreateDialogOpen } =
     useCreateOrgDialog();
-
-  const { data: organizations, isPending: isLoadingOrgs } =
-    authClient.useListOrganizations();
-  const { data: activeOrg, isPending: isLoadingActive } =
-    authClient.useActiveOrganization();
 
   const [newOrgName, setNewOrgName] = useState("");
   const [newOrgSlug, setNewOrgSlug] = useState("");
   const [isSlugModified, setIsSlugModified] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+
+  const activeOrg = organizations[0];
 
   const handleCreateOrganization = async (
     e: React.FormEvent<HTMLFormElement>,
@@ -82,10 +84,6 @@ export function OrganizationSwitcher() {
       },
     );
   };
-
-  if (isLoadingOrgs || isLoadingActive) {
-    return <div className="h-10 w-40 animate-pulse bg-muted rounded-md" />;
-  }
 
   return (
     <>
