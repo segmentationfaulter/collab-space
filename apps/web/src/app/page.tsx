@@ -8,6 +8,15 @@ import { Building2, Plus } from "lucide-react";
 import { useEffect } from "react";
 import { Spinner } from "@/components/ui/spinner";
 
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+
 export default function Home() {
   const { data: session, isPending: isSessionPending } =
     authClient.useSession();
@@ -167,35 +176,33 @@ function AuthenticatedHome({ session }: { session: Session }) {
             </div>
           </div>
         ) : (
-          <div className="max-w-md w-full space-y-6">
-            <div className="flex justify-center">
-              <div className="p-4 rounded-full bg-primary/10">
-                <Building2 className="h-12 w-12 text-primary" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tight">
-                Create your first workspace
-              </h1>
-              <p className="text-muted-foreground">
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Building2 className="h-12 w-12" />
+              </EmptyMedia>
+              <EmptyTitle>Create your first workspace</EmptyTitle>
+              <EmptyDescription>
                 Workspaces are where you and your team can collaborate on
                 projects.
-              </p>
-            </div>
-            <Button
-              size="lg"
-              className="w-full gap-2 cursor-pointer"
-              onClick={() => {
-                const switcher = document.querySelector(
-                  '[data-slot="dropdown-menu-trigger"]',
-                );
-                if (switcher instanceof HTMLElement) switcher.click();
-              }}
-            >
-              <Plus className="h-5 w-5" />
-              Get Started
-            </Button>
-          </div>
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button
+                size="lg"
+                className="gap-2 cursor-pointer"
+                onClick={() => {
+                  const switcher = document.querySelector(
+                    '[data-slot="dropdown-menu-trigger"]',
+                  );
+                  if (switcher instanceof HTMLElement) switcher.click();
+                }}
+              >
+                <Plus className="h-5 w-5" />
+                Get Started
+              </Button>
+            </EmptyContent>
+          </Empty>
         )}
       </main>
     </div>
