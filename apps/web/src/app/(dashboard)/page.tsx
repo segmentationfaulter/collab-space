@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Building2, Plus } from "lucide-react";
 import { useEffect } from "react";
 import { Spinner } from "@/components/ui/spinner";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useCreateOrgDialog } from "@/hooks/use-create-org-dialog";
 
 import {
   Empty,
@@ -68,9 +68,7 @@ function LandingPage() {
 }
 
 function AuthenticatedHome({ session }: { session: Session }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const { setOpen: setCreateDialogOpen } = useCreateOrgDialog();
 
   const { data: organizations, isPending: loadingOrganizations } =
     authClient.useListOrganizations();
@@ -86,16 +84,6 @@ function AuthenticatedHome({ session }: { session: Session }) {
       }
     }
   }, [organizations, loadingOrganizations, loadingActiveOrg]);
-
-  const setCreateDialogOpen = (open: boolean) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (open) {
-      params.set("create", "true");
-    } else {
-      params.delete("create");
-    }
-    router.push(`${pathname}?${params.toString()}`);
-  };
 
   const isPending =
     loadingOrganizations ||

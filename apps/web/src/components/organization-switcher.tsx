@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Plus, ChevronsUpDown, Check, Building2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -24,23 +24,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useCreateOrgDialog } from "@/hooks/use-create-org-dialog";
 
 export function OrganizationSwitcher() {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const isCreateDialogOpen = searchParams.get("create") === "true";
-
-  const setCreateDialogOpen = (open: boolean) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (open) {
-      params.set("create", "true");
-    } else {
-      params.delete("create");
-    }
-    router.push(`${pathname}?${params.toString()}`);
-  };
+  const { isOpen: isCreateDialogOpen, setOpen: setCreateDialogOpen } =
+    useCreateOrgDialog();
 
   const { data: organizations, isPending: isLoadingOrgs } =
     authClient.useListOrganizations();
