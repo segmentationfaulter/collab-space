@@ -8,7 +8,7 @@ import { OrganizationSwitcher } from "@/components/organization-switcher";
 import { Suspense } from "react";
 
 export function SiteHeader() {
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
@@ -18,7 +18,9 @@ export function SiteHeader() {
           <span>CollabSpace</span>
         </Link>
         <nav className="ml-auto flex items-center gap-4">
-          {session ? (
+          {isPending ? (
+            <div className="h-9 w-24 animate-pulse bg-muted rounded-md" />
+          ) : session ? (
             <>
               <Suspense
                 fallback={
