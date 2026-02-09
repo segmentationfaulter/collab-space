@@ -13,45 +13,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { Github } from "lucide-react";
-import { useState } from "react";
+import { useState, useActionState } from "react";
+import { signUpAction } from "../actions";
 
 export default function SignUp() {
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isPending, setIsPending] = useState(false);
+  const [state, action, isPending] = useActionState(signUpAction, null);
   const [isSocialPending, setIsSocialPending] = useState(false);
+  const [socialError, setSocialError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setIsPending(true);
-
-    try {
-      await authClient.signUp.email(
-        {
-          email,
-          password,
-          name,
-          username,
-        },
-        {
-          onSuccess: () => {
-            window.location.href = "/";
-          },
-          onError: (ctx) => {
-            setError(ctx.error.message || "Failed to create account");
-            setIsPending(false);
-          },
-        },
-      );
-    } catch {
-      setError("An unexpected error occurred");
-      setIsPending(false);
-    }
-  };
+  const error = (state?.error as string) || socialError;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -62,18 +32,11 @@ export default function SignUp() {
             Enter your details below to create your account
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit}>
+        <form action={action}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                name="name"
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
+              <Input id="name" name="name" placeholder="John Doe" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
@@ -81,8 +44,6 @@ export default function SignUp() {
                 id="username"
                 name="username"
                 placeholder="johndoe"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
@@ -93,21 +54,12 @@ export default function SignUp() {
                 name="email"
                 type="email"
                 placeholder="m@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <Input id="password" name="password" type="password" required />
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
           </CardContent>
@@ -135,6 +87,7 @@ export default function SignUp() {
               type="button"
               disabled={isPending || isSocialPending}
               onClick={async () => {
+                setSocialError("");
                 setIsSocialPending(true);
                 try {
                   await authClient.signIn.social({
@@ -142,7 +95,7 @@ export default function SignUp() {
                     callbackURL: "/",
                   });
                 } catch {
-                  setError("An unexpected error occurred");
+                  setSocialError("An unexpected error occurred");
                   setIsSocialPending(false);
                 }
               }}

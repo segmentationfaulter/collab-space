@@ -13,55 +13,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { Github } from "lucide-react";
-import { useState } from "react";
+import { useState, useActionState } from "react";
+import { signInAction } from "../actions";
 
 export default function SignIn() {
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isPending, setIsPending] = useState(false);
+  const [state, action, isPending] = useActionState(signInAction, null);
   const [isSocialPending, setIsSocialPending] = useState(false);
+  const [socialError, setSocialError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setIsPending(true);
-
-    const isEmail = identifier.includes("@");
-
-    try {
-      const commonOptions = {
-        onSuccess: () => {
-          window.location.href = "/";
-        },
-        onError: (ctx: { error: { message?: string } }) => {
-          setError(ctx.error.message || "Failed to sign in");
-          setIsPending(false);
-        },
-      };
-
-      if (isEmail) {
-        await authClient.signIn.email(
-          {
-            email: identifier,
-            password,
-          },
-          commonOptions,
-        );
-      } else {
-        await authClient.signIn.username(
-          {
-            username: identifier,
-            password,
-          },
-          commonOptions,
-        );
-      }
-    } catch {
-      setError("An unexpected error occurred");
-      setIsPending(false);
-    }
-  };
+  const error = (state?.error as string) || socialError;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -72,7 +32,7 @@ export default function SignIn() {
             Enter your email or username below to sign in to your account
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit}>
+        <form action={action}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="identifier">Email or Username</Label>
@@ -80,21 +40,12 @@ export default function SignIn() {
                 id="identifier"
                 name="identifier"
                 placeholder="m@example.com or johndoe"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <Input id="password" name="password" type="password" required />
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
           </CardContent>
@@ -122,6 +73,7 @@ export default function SignIn() {
               type="button"
               disabled={isPending || isSocialPending}
               onClick={async () => {
+                setSocialError("");
                 setIsSocialPending(true);
                 try {
                   await authClient.signIn.social({
@@ -129,7 +81,7 @@ export default function SignIn() {
                     callbackURL: "/",
                   });
                 } catch {
-                  setError("An unexpected error occurred");
+                  setSocialError("An unexpected error occurred");
                   setIsSocialPending(false);
                 }
               }}
