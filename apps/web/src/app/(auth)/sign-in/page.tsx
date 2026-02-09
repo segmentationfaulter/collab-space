@@ -10,7 +10,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Field,
+  FieldContent,
+  FieldLabel,
+  FieldError,
+} from "@/components/ui/field";
 import { authClient } from "@/lib/auth-client";
 import { Github } from "lucide-react";
 import { useState, useActionState } from "react";
@@ -34,20 +39,30 @@ export default function SignIn() {
         </CardHeader>
         <form action={action}>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="identifier">Email or Username</Label>
-              <Input
-                id="identifier"
-                name="identifier"
-                placeholder="m@example.com or johndoe"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" required />
-            </div>
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            <Field data-invalid={!!state?.fieldErrors?.identifier}>
+              <FieldLabel htmlFor="identifier">Email or Username</FieldLabel>
+              <FieldContent>
+                <Input
+                  id="identifier"
+                  name="identifier"
+                  placeholder="m@example.com or johndoe"
+                  required
+                />
+                <FieldError>{state?.fieldErrors?.identifier?.[0]}</FieldError>
+              </FieldContent>
+            </Field>
+
+            <Field data-invalid={!!state?.fieldErrors?.password}>
+              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <FieldContent>
+                <Input id="password" name="password" type="password" required />
+                <FieldError>{state?.fieldErrors?.password?.[0]}</FieldError>
+              </FieldContent>
+            </Field>
+
+            {error && (
+              <p className="text-sm text-red-500 font-medium">{error}</p>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col gap-4 mt-4">
             <Button

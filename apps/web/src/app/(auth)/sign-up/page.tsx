@@ -11,6 +11,12 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Field,
+  FieldContent,
+  FieldLabel,
+  FieldError,
+} from "@/components/ui/field";
 import { authClient } from "@/lib/auth-client";
 import { Github } from "lucide-react";
 import { useState, useActionState } from "react";
@@ -34,34 +40,52 @@ export default function SignUp() {
         </CardHeader>
         <form action={action}>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" placeholder="John Doe" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                name="username"
-                placeholder="johndoe"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" required />
-            </div>
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            <Field data-invalid={!!state?.fieldErrors?.name}>
+              <FieldLabel htmlFor="name">Name</FieldLabel>
+              <FieldContent>
+                <Input id="name" name="name" placeholder="John Doe" required />
+                <FieldError>{state?.fieldErrors?.name?.[0]}</FieldError>
+              </FieldContent>
+            </Field>
+
+            <Field data-invalid={!!state?.fieldErrors?.username}>
+              <FieldLabel htmlFor="username">Username</FieldLabel>
+              <FieldContent>
+                <Input
+                  id="username"
+                  name="username"
+                  placeholder="johndoe"
+                  required
+                />
+                <FieldError>{state?.fieldErrors?.username?.[0]}</FieldError>
+              </FieldContent>
+            </Field>
+
+            <Field data-invalid={!!state?.fieldErrors?.email}>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <FieldContent>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                />
+                <FieldError>{state?.fieldErrors?.email?.[0]}</FieldError>
+              </FieldContent>
+            </Field>
+
+            <Field data-invalid={!!state?.fieldErrors?.password}>
+              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <FieldContent>
+                <Input id="password" name="password" type="password" required />
+                <FieldError>{state?.fieldErrors?.password?.[0]}</FieldError>
+              </FieldContent>
+            </Field>
+
+            {error && (
+              <p className="text-sm text-red-500 font-medium">{error}</p>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col gap-4 mt-4">
             <Button
