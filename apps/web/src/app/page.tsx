@@ -34,7 +34,11 @@ export default function Home() {
     }
   }, [session, activeOrg, organizations, isOrgsPending, isActivePending]);
 
-  const isPending = isSessionPending || isOrgsPending || isActivePending;
+  const isPending =
+    isSessionPending ||
+    isOrgsPending ||
+    isActivePending ||
+    (!!session && !!organizations && organizations.length > 0 && !activeOrg);
 
   if (isPending) {
     return (
