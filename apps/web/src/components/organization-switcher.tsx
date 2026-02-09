@@ -23,7 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
 import { useCreateOrgDialog } from "@/hooks/use-create-org-dialog";
 import { Organization } from "@/lib/auth";
 import { toast } from "sonner";
@@ -173,40 +173,45 @@ export function OrganizationSwitcher({
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Workspace Name</Label>
-                <Input
-                  id="name"
-                  placeholder="Acme Inc."
-                  value={newOrgName}
-                  onChange={(e) => {
-                    const name = e.target.value;
-                    setNewOrgName(name);
-                    if (!isSlugModified) {
-                      setNewOrgSlug(
-                        name
-                          .toLowerCase()
-                          .replace(/ /g, "-")
-                          .replace(/[^\w-]/g, ""),
-                      );
-                    }
-                  }}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="slug">Workspace Slug</Label>
-                <Input
-                  id="slug"
-                  placeholder="acme-inc"
-                  value={newOrgSlug}
-                  onChange={(e) => {
-                    setNewOrgSlug(e.target.value);
-                    setIsSlugModified(true);
-                  }}
-                  required
-                />
-              </div>
+              <Field>
+                <FieldLabel htmlFor="name">Workspace Name</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="name"
+                    placeholder="Acme Inc."
+                    value={newOrgName}
+                    onChange={(e) => {
+                      const name = e.target.value;
+                      setNewOrgName(name);
+                      if (!isSlugModified) {
+                        setNewOrgSlug(
+                          name
+                            .toLowerCase()
+                            .replace(/ /g, "-")
+                            .replace(/[^\w-]/g, ""),
+                        );
+                      }
+                    }}
+                    required
+                  />
+                </FieldContent>
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="slug">Workspace Slug</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="slug"
+                    placeholder="acme-inc"
+                    value={newOrgSlug}
+                    onChange={(e) => {
+                      setNewOrgSlug(e.target.value);
+                      setIsSlugModified(true);
+                    }}
+                    required
+                  />
+                </FieldContent>
+              </Field>
             </div>
             <DialogFooter>
               <Button
