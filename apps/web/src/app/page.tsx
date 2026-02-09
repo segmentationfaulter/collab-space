@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { OrganizationSwitcher } from "@/components/organization-switcher";
 import { Building2, Plus } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
 
 import {
@@ -101,6 +101,8 @@ function AuthenticatedHome({ session }: { session: Session }) {
   const { data: activeOrg, isPending: loadingActiveOrg } =
     authClient.useActiveOrganization();
 
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
   useEffect(() => {
     if (!loadingOrganizations && organizations && organizations.length > 0) {
       if (!loadingActiveOrg) {
@@ -129,7 +131,10 @@ function AuthenticatedHome({ session }: { session: Session }) {
             <span>CollabSpace</span>
           </Link>
           <nav className="ml-auto flex items-center gap-4">
-            <OrganizationSwitcher />
+            <OrganizationSwitcher
+              isCreateDialogOpen={isCreateDialogOpen}
+              onCreateDialogChange={setIsCreateDialogOpen}
+            />
             <Button
               variant="ghost"
               className="cursor-pointer"
@@ -191,12 +196,7 @@ function AuthenticatedHome({ session }: { session: Session }) {
               <Button
                 size="lg"
                 className="gap-2 cursor-pointer"
-                onClick={() => {
-                  const switcher = document.querySelector(
-                    '[data-slot="dropdown-menu-trigger"]',
-                  );
-                  if (switcher instanceof HTMLElement) switcher.click();
-                }}
+                onClick={() => setIsCreateDialogOpen(true)}
               >
                 <Plus className="h-5 w-5" />
                 Get Started

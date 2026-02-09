@@ -25,14 +25,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function OrganizationSwitcher() {
+export function OrganizationSwitcher({
+  isCreateDialogOpen,
+  onCreateDialogChange,
+}: {
+  isCreateDialogOpen: boolean;
+  onCreateDialogChange: (open: boolean) => void;
+}) {
   const router = useRouter();
   const { data: organizations, isPending: isLoadingOrgs } =
     authClient.useListOrganizations();
   const { data: activeOrg, isPending: isLoadingActive } =
     authClient.useActiveOrganization();
 
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newOrgName, setNewOrgName] = useState("");
   const [newOrgSlug, setNewOrgSlug] = useState("");
   const [isSlugModified, setIsSlugModified] = useState(false);
@@ -51,7 +56,7 @@ export function OrganizationSwitcher() {
         },
         {
           onSuccess: () => {
-            setIsCreateDialogOpen(false);
+            onCreateDialogChange(false);
             setNewOrgName("");
             setNewOrgSlug("");
             setIsSlugModified(false);
@@ -137,7 +142,7 @@ export function OrganizationSwitcher() {
           ))}
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={() => setIsCreateDialogOpen(true)}
+            onClick={() => onCreateDialogChange(true)}
             className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
@@ -149,7 +154,7 @@ export function OrganizationSwitcher() {
       <Dialog
         open={isCreateDialogOpen}
         onOpenChange={(open) => {
-          setIsCreateDialogOpen(open);
+          onCreateDialogChange(open);
           if (!open) {
             setNewOrgName("");
             setNewOrgSlug("");
@@ -205,7 +210,7 @@ export function OrganizationSwitcher() {
               <Button
                 variant="outline"
                 type="button"
-                onClick={() => setIsCreateDialogOpen(false)}
+                onClick={() => onCreateDialogChange(false)}
               >
                 Cancel
               </Button>
