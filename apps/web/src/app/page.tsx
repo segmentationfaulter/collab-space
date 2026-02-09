@@ -1,6 +1,6 @@
 "use client";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient, type Session } from "@/lib/auth-client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { OrganizationSwitcher } from "@/components/organization-switcher";
@@ -85,7 +85,7 @@ function LandingPage() {
   );
 }
 
-function AuthenticatedHome({ session }: { session: any }) {
+function AuthenticatedHome({ session }: { session: Session }) {
   const { data: organizations, isPending: loadingOrganizations } =
     authClient.useListOrganizations();
   const { data: activeOrg, isPending: loadingActiveOrg } =
