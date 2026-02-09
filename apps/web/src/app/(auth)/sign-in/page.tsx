@@ -33,8 +33,7 @@ export default function SignIn() {
     try {
       const commonOptions = {
         onSuccess: () => {
-          router.push("/");
-          router.refresh();
+          window.location.href = "/";
         },
         onError: (ctx: { error: { message?: string } }) => {
           setError(ctx.error.message || "Failed to sign in");

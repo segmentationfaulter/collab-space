@@ -15,21 +15,24 @@ export default function Home() {
     authClient.useListOrganizations();
   const { data: activeOrg, isPending: isActivePending } =
     authClient.useActiveOrganization();
-  const router = useRouter();
 
   useEffect(() => {
     if (
       session &&
-      !isActivePending &&
-      !activeOrg &&
+      !isOrgsPending &&
       organizations &&
       organizations.length > 0
     ) {
-      authClient.organization.setActive({
-        organizationId: organizations[0].id,
-      });
+      const isActualMember =
+        activeOrg && organizations.some((org) => org.id === activeOrg.id);
+
+      if (!isActualMember && !isActivePending) {
+        authClient.organization.setActive({
+          organizationId: organizations[0].id,
+        });
+      }
     }
-  }, [session, activeOrg, organizations, isActivePending]);
+  }, [session, activeOrg, organizations, isOrgsPending, isActivePending]);
 
   const isPending = isSessionPending || isOrgsPending || isActivePending;
 
@@ -60,7 +63,7 @@ export default function Home() {
                   await authClient.signOut({
                     fetchOptions: {
                       onSuccess: () => {
-                        router.refresh();
+                        window.location.href = "/";
                       },
                     },
                   });

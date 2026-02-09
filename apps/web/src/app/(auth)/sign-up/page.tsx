@@ -40,8 +40,7 @@ export default function SignUp() {
         },
         {
           onSuccess: () => {
-            router.push("/");
-            router.refresh();
+            window.location.href = "/";
           },
           onError: (ctx) => {
             setError(ctx.error.message || "Failed to create account");
