@@ -29,8 +29,10 @@ import { Organization } from "@/lib/auth";
 
 export function OrganizationSwitcher({
   organizations,
+  activeOrganizationId,
 }: {
   organizations: Organization[];
+  activeOrganizationId?: string | null;
 }) {
   const router = useRouter();
   const { isOpen: isCreateDialogOpen, setOpen: setCreateDialogOpen } =
@@ -41,7 +43,9 @@ export function OrganizationSwitcher({
   const [isSlugModified, setIsSlugModified] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
-  const activeOrg = organizations[0];
+  const activeOrg =
+    organizations.find((org) => org.id === activeOrganizationId) ||
+    organizations[0];
 
   const handleCreateOrganization = async (
     e: React.FormEvent<HTMLFormElement>,

@@ -23,7 +23,7 @@ export async function SiteHeader() {
     }
   }
 
-  if (organizations.length > 0) {
+  if (organizations.length > 0 && !session?.session.activeOrganizationId) {
     const firstOrg = organizations[0];
     await auth.api.setActiveOrganization({
       body: {
@@ -45,7 +45,10 @@ export async function SiteHeader() {
           {session ? (
             <>
               <Suspense fallback={<Skeleton className="h-10 w-40" />}>
-                <OrganizationSwitcher organizations={organizations} />
+                <OrganizationSwitcher
+                  organizations={organizations}
+                  activeOrganizationId={session.session.activeOrganizationId}
+                />
               </Suspense>
               <LogoutButton />
             </>

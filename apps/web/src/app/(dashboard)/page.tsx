@@ -77,13 +77,13 @@ function AuthenticatedHome({ session }: { session: Session }) {
 
   useEffect(() => {
     if (!loadingOrganizations && organizations && organizations.length > 0) {
-      if (!loadingActiveOrg) {
+      if (!loadingActiveOrg && !activeOrg) {
         authClient.organization.setActive({
           organizationId: organizations[0].id,
         });
       }
     }
-  }, [organizations, loadingOrganizations, loadingActiveOrg]);
+  }, [organizations, loadingOrganizations, loadingActiveOrg, activeOrg]);
 
   const isPending =
     loadingOrganizations ||
