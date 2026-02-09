@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { OrganizationSwitcher } from "@/components/organization-switcher";
 import { Building2, Plus } from "lucide-react";
 import { useEffect } from "react";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function Home() {
   const { data: session, isPending: isSessionPending } =
@@ -25,7 +26,7 @@ export default function Home() {
 function Loading() {
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <Spinner className="size-12 text-primary" />
     </div>
   );
 }
