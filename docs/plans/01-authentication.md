@@ -53,9 +53,9 @@
 
 #### Task 5.2: Workspace Management UI (Create & Switch)
 
-- [ ] Create `OrganizationSwitcher` component for the navigation bar.
-- [ ] Implement `CreateOrganization` dialog/form.
-- [ ] Update session handling to reflect the `activeOrganization`.
+- [x] Create `OrganizationSwitcher` component for the navigation bar.
+- [x] Implement `CreateOrganization` dialog/form.
+- [x] Update session handling to reflect the `activeOrganization`.
 - **Verification:** User can create a workspace and switch between multiple workspaces.
 
 #### Task 5.3: Invitation System
