@@ -17,3 +17,4 @@
 - **Next.js Documentation (LLM-friendly):** https://nextjs.org/docs/llms.txt
 - **Drizzle Documentation (LLM-friendly):** https://orm.drizzle.team/llms.txt
 - **Shadcn UI Documentation (LLM-friendly):** https://ui.shadcn.com/llms.txt
+- **Package Manager:** This project uses `pnpm`. Use `pnpm dlx` instead of `npx` for one-off commands.

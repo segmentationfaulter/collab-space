@@ -45,14 +45,25 @@
 
 ### Task 5: Organizations (Multi-tenancy)
 
-- [ ] Enable `organization` plugin in `apps/web/src/lib/auth.ts`.
-- [ ] Configure Roles & Permissions (Owner, Admin, Member) in `auth.ts`.
-- [ ] Update database schema for Organizations, Members, and Invitations.
-- [ ] Create UI for creating and switching Organizations (Workspaces).
-- [ ] Implement Invitation Flow:
-  - [ ] UI to invite members by email.
-  - [ ] Route handler to accept invitations.
-- **Verification:** User can create an organization, switch between them, and successfully invite/add a member.
+#### Task 5.1: Organization Configuration & Access Control
+
+- [x] Confirm default roles (`owner`, `admin`, `member`) alignment with project requirements.
+- [x] Ensure `auth.ts` and `auth-client.ts` are synchronized with the same plugin config.
+- **Verification:** Logged-in user session includes organization-related fields.
+
+#### Task 5.2: Workspace Management UI (Create & Switch)
+
+- [ ] Create `OrganizationSwitcher` component for the navigation bar.
+- [ ] Implement `CreateOrganization` dialog/form.
+- [ ] Update session handling to reflect the `activeOrganization`.
+- **Verification:** User can create a workspace and switch between multiple workspaces.
+
+#### Task 5.3: Invitation System
+
+- [ ] Implement "Invite Member" UI (email + role selection).
+- [ ] Implement `AcceptInvitation` page logic (`apps/web/src/app/accept-invitation/[id]/page.tsx`).
+- [ ] Add "Members" management view to list and remove organization members.
+- **Verification:** An invited user can join the organization via the invitation link.
 
 ### Task 6: Integration & Protection (tRPC & Middleware)
 
