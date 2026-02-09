@@ -6,6 +6,7 @@ import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { OrganizationSwitcher } from "@/components/organization-switcher";
 import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function SiteHeader() {
   const { data: session, isPending } = authClient.useSession();
@@ -19,14 +20,10 @@ export function SiteHeader() {
         </Link>
         <nav className="ml-auto flex items-center gap-4">
           {isPending ? (
-            <div className="h-9 w-24 animate-pulse bg-muted rounded-md" />
+            <Skeleton className="h-9 w-24" />
           ) : session ? (
             <>
-              <Suspense
-                fallback={
-                  <div className="h-10 w-40 animate-pulse bg-muted rounded-md" />
-                }
-              >
+              <Suspense fallback={<Skeleton className="h-10 w-40" />}>
                 <OrganizationSwitcher />
               </Suspense>
               <Button
