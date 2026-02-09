@@ -14,16 +14,15 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { Github } from "lucide-react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function SignIn() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isPending, setIsPending] = useState(false);
-  const router = useRouter();
+  const [isSocialPending, setIsSocialPending] = useState(false);
 
-  const handleSubmit = async (e: React.SubmitEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsPending(true);
@@ -103,7 +102,7 @@ export default function SignIn() {
             <Button
               className="w-full cursor-pointer"
               type="submit"
-              disabled={isPending}
+              disabled={isPending || isSocialPending}
             >
               {isPending ? "Signing In..." : "Sign In"}
             </Button>
@@ -121,15 +120,28 @@ export default function SignIn() {
               variant="outline"
               className="w-full flex items-center justify-center gap-2 cursor-pointer"
               type="button"
+              disabled={isPending || isSocialPending}
               onClick={async () => {
-                await authClient.signIn.social({
-                  provider: "github",
-                  callbackURL: "/",
-                });
+                setIsSocialPending(true);
+                try {
+                  await authClient.signIn.social({
+                    provider: "github",
+                    callbackURL: "/",
+                  });
+                } catch {
+                  setError("An unexpected error occurred");
+                  setIsSocialPending(false);
+                }
               }}
             >
-              <Github className="w-4 h-4" />
-              Continue with GitHub
+              {isSocialPending ? (
+                "Connecting..."
+              ) : (
+                <>
+                  <Github className="w-4 h-4" />
+                  Continue with GitHub
+                </>
+              )}
             </Button>
           </CardFooter>
         </form>
