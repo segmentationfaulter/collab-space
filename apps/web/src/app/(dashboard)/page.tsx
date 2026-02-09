@@ -1,11 +1,9 @@
-"use client";
-
-import { authClient, type Session } from "@/lib/auth-client";
+import { Organization } from "@/lib/auth";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Building2, Plus } from "lucide-react";
-import { Spinner } from "@/components/ui/spinner";
-import { useCreateOrgDialog } from "@/hooks/use-create-org-dialog";
+import { getAuthData } from "@/lib/auth-server";
+import { type Session } from "@/lib/auth-client";
 
 import {
   Empty,
@@ -16,26 +14,23 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
-export default function Home() {
-  const { data: session, isPending: isSessionPending } =
-    authClient.useSession();
-
-  if (isSessionPending) {
-    return <Loading />;
-  }
+export default async function Home() {
+  const { session, organizations, activeOrganizationId } = await getAuthData();
 
   if (!session) {
     return <LandingPage />;
   }
 
-  return <AuthenticatedHome session={session} />;
-}
+  const activeOrg = organizations.find(
+    (org) => org.id === activeOrganizationId,
+  );
 
-function Loading() {
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-      <Spinner className="size-12 text-primary" />
-    </div>
+    <AuthenticatedHome
+      session={session}
+      activeOrg={activeOrg}
+      hasOrganizations={organizations.length > 0}
+    />
   );
 }
 
@@ -66,26 +61,18 @@ function LandingPage() {
   );
 }
 
-function AuthenticatedHome({ session }: { session: Session }) {
-  const { setOpen: setCreateDialogOpen } = useCreateOrgDialog();
-
-  const { data: organizations, isPending: loadingOrganizations } =
-    authClient.useListOrganizations();
-  const { data: activeOrg, isPending: loadingActiveOrg } =
-    authClient.useActiveOrganization();
-
-  const isPending =
-    loadingOrganizations ||
-    loadingActiveOrg ||
-    (organizations && organizations.length > 0 && !activeOrg);
-
-  if (isPending) {
-    return <Loading />;
-  }
-
+function AuthenticatedHome({
+  session,
+  activeOrg,
+  hasOrganizations,
+}: {
+  session: Session;
+  activeOrg?: Organization;
+  hasOrganizations: boolean;
+}) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-background">
-      {activeOrg ? (
+      {hasOrganizations && activeOrg ? (
         <div className="max-w-2xl w-full space-y-6">
           <div className="space-y-2">
             <h1 className="text-4xl font-bold tracking-tight">
@@ -123,13 +110,11 @@ function AuthenticatedHome({ session }: { session: Session }) {
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            <Button
-              size="lg"
-              className="gap-2 cursor-pointer"
-              onClick={() => setCreateDialogOpen(true)}
-            >
-              <Plus className="h-5 w-5" />
-              Get Started
+            <Button size="lg" className="gap-2 cursor-pointer" asChild>
+              <Link href="?create=true">
+                <Plus className="h-5 w-5" />
+                Get Started
+              </Link>
             </Button>
           </EmptyContent>
         </Empty>

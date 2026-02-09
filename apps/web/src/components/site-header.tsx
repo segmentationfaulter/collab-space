@@ -1,38 +1,12 @@
 import Link from "next/link";
 import { Building2 } from "lucide-react";
-import { auth, Organization } from "@/lib/auth";
-import { headers } from "next/headers";
 import { Button } from "@/components/ui/button";
 import { OrganizationSwitcher } from "@/components/organization-switcher";
-import { Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { LogoutButton } from "@/components/logout-button";
+import { getAuthData } from "@/lib/auth-server";
 
 export async function SiteHeader() {
-  const requestHeaders = await headers();
-  const session = await auth.api.getSession({ headers: requestHeaders });
-
-  let organizations: Organization[] = [];
-  if (session) {
-    try {
-      organizations = await auth.api.listOrganizations({
-        headers: requestHeaders,
-      });
-    } catch (error) {
-      console.error("Failed to fetch organizations:", error);
-    }
-  }
-
-  if (organizations.length > 0 && !session?.session.activeOrganizationId) {
-    const firstOrg = organizations[0];
-    await auth.api.setActiveOrganization({
-      body: {
-        organizationId: firstOrg.id,
-        organizationSlug: firstOrg.slug,
-      },
-      headers: requestHeaders,
-    });
-  }
+  const { session, organizations, activeOrganizationId } = await getAuthData();
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 sticky top-0 z-50">
@@ -44,12 +18,10 @@ export async function SiteHeader() {
         <nav className="ml-auto flex items-center gap-4">
           {session ? (
             <>
-              <Suspense fallback={<Skeleton className="h-10 w-40" />}>
-                <OrganizationSwitcher
-                  organizations={organizations}
-                  activeOrganizationId={session.session.activeOrganizationId}
-                />
-              </Suspense>
+              <OrganizationSwitcher
+                organizations={organizations}
+                activeOrganizationId={activeOrganizationId}
+              />
               <LogoutButton />
             </>
           ) : (
