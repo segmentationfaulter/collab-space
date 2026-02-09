@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Building2 } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { auth, Organization } from "@/lib/auth";
 import { headers } from "next/headers";
 import { Button } from "@/components/ui/button";
 import { OrganizationSwitcher } from "@/components/organization-switcher";
@@ -10,12 +10,20 @@ import { LogoutButton } from "@/components/logout-button";
 
 export async function SiteHeader() {
   const requestHeaders = await headers();
-  const [session, organizations] = await Promise.all([
-    auth.api.getSession({ headers: requestHeaders }),
-    auth.api.listOrganizations({ headers: requestHeaders }),
-  ]);
+  const session = await auth.api.getSession({ headers: requestHeaders });
 
-  if (organizations && organizations.length > 0) {
+  let organizations: Organization[] = [];
+  if (session) {
+    try {
+      organizations = await auth.api.listOrganizations({
+        headers: requestHeaders,
+      });
+    } catch (error) {
+      console.error("Failed to fetch organizations:", error);
+    }
+  }
+
+  if (organizations.length > 0) {
     const firstOrg = organizations[0];
     await auth.api.setActiveOrganization({
       body: {
