@@ -4,7 +4,6 @@ import { authClient, type Session } from "@/lib/auth-client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Building2, Plus } from "lucide-react";
-import { useEffect } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { useCreateOrgDialog } from "@/hooks/use-create-org-dialog";
 
@@ -74,16 +73,6 @@ function AuthenticatedHome({ session }: { session: Session }) {
     authClient.useListOrganizations();
   const { data: activeOrg, isPending: loadingActiveOrg } =
     authClient.useActiveOrganization();
-
-  useEffect(() => {
-    if (!loadingOrganizations && organizations && organizations.length > 0) {
-      if (!loadingActiveOrg && !activeOrg) {
-        authClient.organization.setActive({
-          organizationId: organizations[0].id,
-        });
-      }
-    }
-  }, [organizations, loadingOrganizations, loadingActiveOrg, activeOrg]);
 
   const isPending =
     loadingOrganizations ||
