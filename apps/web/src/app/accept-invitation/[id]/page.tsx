@@ -1,4 +1,4 @@
-import { auth, Invitation, Organization } from "@/lib/auth";
+import { auth, Invitation } from "@/lib/auth";
 import { getAuthData } from "@/lib/auth-server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { AcceptInvitationClient } from "./accept-invitation-client";
 import { APIError } from "better-auth";
+import { db } from "@/db";
 
 export default async function AcceptInvitationPage(props: {
   params: Promise<{ id: string }>;
@@ -26,7 +27,7 @@ export default async function AcceptInvitationPage(props: {
 
   const requestHeaders = await headers();
   let invitation: Invitation | null = null;
-  let organization: Organization | null = null;
+  let organizationName: string | undefined = undefined;
   let error: string | null = null;
 
   try {
@@ -36,19 +37,29 @@ export default async function AcceptInvitationPage(props: {
       },
       headers: requestHeaders,
     });
-
-    organization = await auth.api.getFullOrganization({
-      query: {
-        organizationId: invitation.organizationId,
-        membersLimit: 0,
-      },
-      headers: requestHeaders,
-    });
   } catch (err) {
     if (err instanceof APIError) {
       error = err.message;
     } else {
       error = "Failed to fetch invitation";
+    }
+  }
+
+  if (invitation) {
+    try {
+      const org = await db.query.organization.findFirst({
+        where: (organization, { eq }) =>
+          eq(organization.id, invitation.organizationId),
+        columns: {
+          name: true,
+        },
+      });
+
+      organizationName = org?.name;
+    } catch (err) {
+      console.error("Failed to fetch organization name:", err);
+      // We don't necessarily want to block the whole page if just the name fetch fails,
+      // the client component handles the fallback.
     }
   }
 
@@ -77,7 +88,7 @@ export default async function AcceptInvitationPage(props: {
       <AcceptInvitationClient
         invitation={invitation}
         invitationId={id}
-        organizationName={organization?.name}
+        organizationName={organizationName}
       />
     </div>
   );
