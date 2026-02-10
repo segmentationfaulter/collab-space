@@ -31,6 +31,7 @@ import {
   findOrganizationById,
   findOrganizationBySlug,
 } from "@/utils/organization";
+import Link from "next/link";
 
 export function OrganizationSwitcher({
   organizations,
@@ -87,20 +88,6 @@ export function OrganizationSwitcher({
     }
   };
 
-  const handleSwitch = async (org: Organization) => {
-    // Optional: set active on server too so header is consistent on reload
-    await authClient.organization.setActive(
-      {
-        organizationId: org.id,
-      },
-      {
-        onSuccess: () => {
-          router.push(`/${org.slug}`);
-        },
-      },
-    );
-  };
-
   return (
     <>
       <DropdownMenu>
@@ -137,18 +124,16 @@ export function OrganizationSwitcher({
             Workspaces
           </DropdownMenuLabel>
           {organizations?.map((org) => (
-            <DropdownMenuItem
-              key={org.id}
-              onClick={() => handleSwitch(org)}
-              className="flex items-center gap-2"
-            >
+            <DropdownMenuItem key={org.id} className="flex items-center gap-2">
               <Avatar className="h-6 w-6 rounded-sm">
                 <AvatarImage src={org.logo || ""} alt={org.name} />
                 <AvatarFallback className="rounded-sm text-[10px]">
                   {org.name.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <span className="flex-1 truncate">{org.name}</span>
+              <Link className="flex-1 truncate" href={`/${org.slug}`}>
+                {org.name}
+              </Link>
               {activeOrg?.id === org.id && <Check className="h-4 w-4" />}
             </DropdownMenuItem>
           ))}
