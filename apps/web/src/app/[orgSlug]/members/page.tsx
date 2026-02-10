@@ -1,25 +1,32 @@
 import { getAuthData } from "@/lib/auth-server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { MembersClient } from "./members-client";
 
-export default async function MembersPage() {
-  const { session, activeOrganizationId } = await getAuthData();
+export default async function MembersPage({
+  params,
+}: {
+  params: Promise<{ orgSlug: string }>;
+}) {
+  const { orgSlug } = await params;
+  const { session, organizations } = await getAuthData();
 
   if (!session) {
     redirect("/sign-in");
   }
 
-  if (!activeOrganizationId) {
-    redirect("/");
+  const activeOrg = organizations.find((org) => org.slug === orgSlug);
+
+  if (!activeOrg) {
+    notFound();
   }
 
   const requestHeaders = await headers();
 
   const members = await auth.api.listMembers({
     query: {
-      organizationId: activeOrganizationId,
+      organizationId: activeOrg.id,
     },
     headers: requestHeaders,
   });
@@ -27,7 +34,7 @@ export default async function MembersPage() {
   const invitations = (
     await auth.api.listInvitations({
       query: {
-        organizationId: activeOrganizationId,
+        organizationId: activeOrg.id,
       },
       headers: requestHeaders,
     })
@@ -41,7 +48,7 @@ export default async function MembersPage() {
     <MembersClient
       initialMembers={members?.members || []}
       initialInvitations={invitations}
-      activeOrganizationId={activeOrganizationId}
+      activeOrganizationId={activeOrg.id}
       currentUserId={session.user.id}
       currentUserRole={currentUserMember?.role || "member"}
     />

@@ -18,14 +18,25 @@ import {
 } from "@/components/ui/field";
 import { authClient } from "@/lib/auth-client";
 import { Github } from "lucide-react";
-import { useState, useActionState } from "react";
+import { useState, useActionState, Suspense } from "react";
 import { signInAction } from "../actions";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Spinner } from "@/components/ui/spinner";
 
-export default function SignIn() {
+export default function SignInPage() {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+      <Suspense fallback={<Spinner className="size-8" />}>
+        <SignInForm />
+      </Suspense>
+    </div>
+  );
+}
+
+function SignInForm() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const callbackUrl = searchParams?.get("callbackUrl") || "/";
   const [state, action, isPending] = useActionState(signInAction, null);
   const [isSocialPending, setIsSocialPending] = useState(false);
   const [socialError, setSocialError] = useState("");
@@ -33,100 +44,96 @@ export default function SignIn() {
   const error = (state?.error as string) || socialError;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl">Sign In</CardTitle>
-          <CardDescription>
-            Enter your email or username below to sign in to your account
-          </CardDescription>
-        </CardHeader>
-        <form action={action}>
-          <input type="hidden" name="callbackUrl" value={callbackUrl} />
-          <CardContent className="space-y-4">
-            <Field data-invalid={!!state?.fieldErrors?.identifier}>
-              <FieldLabel htmlFor="identifier">Email or Username</FieldLabel>
-              <FieldContent>
-                <Input
-                  id="identifier"
-                  name="identifier"
-                  placeholder="m@example.com or johndoe"
-                  required
-                />
-                <FieldError>{state?.fieldErrors?.identifier?.[0]}</FieldError>
-              </FieldContent>
-            </Field>
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle className="text-2xl">Sign In</CardTitle>
+        <CardDescription>
+          Enter your email or username below to sign in to your account
+        </CardDescription>
+      </CardHeader>
+      <form action={action}>
+        <input type="hidden" name="callbackUrl" value={callbackUrl} />
+        <CardContent className="space-y-4">
+          <Field data-invalid={!!state?.fieldErrors?.identifier}>
+            <FieldLabel htmlFor="identifier">Email or Username</FieldLabel>
+            <FieldContent>
+              <Input
+                id="identifier"
+                name="identifier"
+                placeholder="m@example.com or johndoe"
+                required
+              />
+              <FieldError>{state?.fieldErrors?.identifier?.[0]}</FieldError>
+            </FieldContent>
+          </Field>
 
-            <Field data-invalid={!!state?.fieldErrors?.password}>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <FieldContent>
-                <Input id="password" name="password" type="password" required />
-                <FieldError>{state?.fieldErrors?.password?.[0]}</FieldError>
-              </FieldContent>
-            </Field>
+          <Field data-invalid={!!state?.fieldErrors?.password}>
+            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <FieldContent>
+              <Input id="password" name="password" type="password" required />
+              <FieldError>{state?.fieldErrors?.password?.[0]}</FieldError>
+            </FieldContent>
+          </Field>
 
-            {error && (
-              <p className="text-sm text-red-500 font-medium">{error}</p>
-            )}
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4 mt-4">
-            <Button
-              className="w-full cursor-pointer"
-              type="submit"
-              disabled={isPending || isSocialPending}
-            >
-              {isPending ? "Signing In..." : "Sign In"}
-            </Button>
-            <div className="relative w-full">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-gray-100 px-2 text-muted-foreground">
-                  Or continue with
-                </span>
-              </div>
+          {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
+        </CardContent>
+        <CardFooter className="flex flex-col gap-4 mt-4">
+          <Button
+            className="w-full cursor-pointer"
+            type="submit"
+            disabled={isPending || isSocialPending}
+          >
+            {isPending ? "Signing In..." : "Sign In"}
+          </Button>
+          <div className="relative w-full">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
             </div>
-            <Button
-              variant="outline"
-              className="w-full flex items-center justify-center gap-2 cursor-pointer"
-              type="button"
-              disabled={isPending || isSocialPending}
-              onClick={async () => {
-                setSocialError("");
-                setIsSocialPending(true);
-                try {
-                  await authClient.signIn.social({
-                    provider: "github",
-                    callbackURL: callbackUrl,
-                  });
-                } catch {
-                  setSocialError("An unexpected error occurred");
-                  setIsSocialPending(false);
-                }
-              }}
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-gray-100 px-2 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            className="w-full flex items-center justify-center gap-2 cursor-pointer"
+            type="button"
+            disabled={isPending || isSocialPending}
+            onClick={async () => {
+              setSocialError("");
+              setIsSocialPending(true);
+              try {
+                await authClient.signIn.social({
+                  provider: "github",
+                  callbackURL: callbackUrl,
+                });
+              } catch {
+                setSocialError("An unexpected error occurred");
+                setIsSocialPending(false);
+              }
+            }}
+          >
+            {isSocialPending ? (
+              "Connecting..."
+            ) : (
+              <>
+                <Github className="w-4 h-4" />
+                Continue with GitHub
+              </>
+            )}
+          </Button>
+          <p className="text-center text-sm text-muted-foreground mt-2">
+            Don&apos;t have an account?{" "}
+            <Link
+              href={`/sign-up${callbackUrl !== "/" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
+              className="text-primary hover:underline font-medium"
             >
-              {isSocialPending ? (
-                "Connecting..."
-              ) : (
-                <>
-                  <Github className="w-4 h-4" />
-                  Continue with GitHub
-                </>
-              )}
-            </Button>
-            <p className="text-center text-sm text-muted-foreground mt-2">
-              Don&apos;t have an account?{" "}
-              <Link
-                href={`/sign-up${callbackUrl !== "/" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
-                className="text-primary hover:underline font-medium"
-              >
-                Sign Up
-              </Link>
-            </p>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
+              Sign Up
+            </Link>
+          </p>
+        </CardFooter>
+      </form>
+    </Card>
   );
 }

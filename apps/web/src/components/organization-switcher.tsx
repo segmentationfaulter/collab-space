@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { Plus, ChevronsUpDown, Check, Building2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -36,17 +36,33 @@ export function OrganizationSwitcher({
   activeOrganizationId?: string | null;
 }) {
   const router = useRouter();
+  const params = useParams();
+  const orgSlug = params?.orgSlug as string | undefined;
+
   const { isOpen: isCreateDialogOpen, setOpen: setCreateDialogOpen } =
     useCreateOrgDialog();
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams?.get("create") === "true") {
+      setCreateDialogOpen(true);
+      // Remove the query param without triggering a full navigation
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, "", newUrl);
+    }
+  }, [searchParams, setCreateDialogOpen]);
 
   const [newOrgName, setNewOrgName] = useState("");
   const [newOrgSlug, setNewOrgSlug] = useState("");
   const [isSlugModified, setIsSlugModified] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
-  const activeOrg =
-    organizations.find((org) => org.id === activeOrganizationId) ||
-    organizations[0];
+  // Determine active org based on URL slug first, then fallback to session-based active id
+  const activeOrg = orgSlug
+    ? organizations.find((org) => org.slug === orgSlug)
+    : organizations.find((org) => org.id === activeOrganizationId) ||
+      organizations[0];
 
   const handleCreateOrganization = async (
     e: React.FormEvent<HTMLFormElement>,
@@ -60,13 +76,13 @@ export function OrganizationSwitcher({
           slug: newOrgSlug,
         },
         {
-          onSuccess: () => {
+          onSuccess: (ctx) => {
             setCreateDialogOpen(false);
             setNewOrgName("");
             setNewOrgSlug("");
             setIsSlugModified(false);
             toast.success("Workspace created successfully");
-            router.refresh();
+            router.push(`/${ctx.data.slug}`);
           },
           onError: (ctx) => {
             toast.error(ctx.error.message);
@@ -78,14 +94,15 @@ export function OrganizationSwitcher({
     }
   };
 
-  const handleSetActive = async (orgId: string) => {
+  const handleSwitch = async (org: Organization) => {
+    // Optional: set active on server too so header is consistent on reload
     await authClient.organization.setActive(
       {
-        organizationId: orgId,
+        organizationId: org.id,
       },
       {
         onSuccess: () => {
-          router.refresh();
+          router.push(`/${org.slug}`);
         },
       },
     );
@@ -129,7 +146,7 @@ export function OrganizationSwitcher({
           {organizations?.map((org) => (
             <DropdownMenuItem
               key={org.id}
-              onClick={() => handleSetActive(org.id)}
+              onClick={() => handleSwitch(org)}
               className="flex items-center gap-2"
             >
               <Avatar className="h-6 w-6 rounded-sm">
