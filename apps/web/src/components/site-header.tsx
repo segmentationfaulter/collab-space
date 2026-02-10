@@ -10,7 +10,8 @@ import {
 } from "@/utils/organization";
 
 export async function SiteHeader({ orgSlug }: { orgSlug?: string }) {
-  const { session, organizations, activeOrganizationId } = await getAuthData();
+  const { session, organizations, activeOrganizationId } =
+    await getAuthData(orgSlug);
 
   const activeOrg = orgSlug
     ? findOrganizationBySlug(organizations, orgSlug)
