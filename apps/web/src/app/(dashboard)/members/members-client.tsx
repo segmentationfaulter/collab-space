@@ -83,18 +83,6 @@ export function MembersClient({
   };
 
   const handleLeaveOrganization = async () => {
-    const isOwner = currentUserRole === "owner";
-    const otherOwners = initialMembers.filter(
-      (m) => m.role === "owner" && m.user.id !== currentUserId,
-    );
-
-    if (isOwner && otherOwners.length === 0) {
-      toast.error(
-        "You are the only owner. Please transfer ownership before leaving.",
-      );
-      return;
-    }
-
     if (
       !confirm(
         "Are you sure you want to leave this organization? You will lose access to all resources.",
@@ -113,6 +101,35 @@ export function MembersClient({
         toast.error(error.message || "Failed to leave organization");
       } else {
         toast.success("You have left the organization");
+        router.push("/");
+        router.refresh();
+      }
+    } catch {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const handleDeleteOrganization = async () => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this organization? This action is permanent and will delete all data.",
+      )
+    ) {
+      return;
+    }
+
+    setIsPending(true);
+    try {
+      const { error } = await authClient.organization.delete({
+        organizationId: activeOrganizationId,
+      });
+
+      if (error) {
+        toast.error(error.message || "Failed to delete organization");
+      } else {
+        toast.success("Organization deleted successfully");
         router.push("/");
         router.refresh();
       }
@@ -236,19 +253,39 @@ export function MembersClient({
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Leave Organization</p>
-              <p className="text-sm text-muted-foreground">
-                You will lose access to this organization and its resources.
-              </p>
-            </div>
-            <Button
-              variant="destructive"
-              onClick={handleLeaveOrganization}
-              disabled={isPending}
-            >
-              Leave Organization
-            </Button>
+            {currentUserRole === "owner" ? (
+              <>
+                <div>
+                  <p className="font-medium">Delete Organization</p>
+                  <p className="text-sm text-muted-foreground">
+                    This action is permanent and will delete all data.
+                  </p>
+                </div>
+                <Button
+                  variant="destructive"
+                  onClick={handleDeleteOrganization}
+                  disabled={isPending}
+                >
+                  Delete Organization
+                </Button>
+              </>
+            ) : (
+              <>
+                <div>
+                  <p className="font-medium">Leave Organization</p>
+                  <p className="text-sm text-muted-foreground">
+                    You will lose access to this organization and its resources.
+                  </p>
+                </div>
+                <Button
+                  variant="destructive"
+                  onClick={handleLeaveOrganization}
+                  disabled={isPending}
+                >
+                  Leave Organization
+                </Button>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
