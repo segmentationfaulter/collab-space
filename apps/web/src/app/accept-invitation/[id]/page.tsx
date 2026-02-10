@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth, Invitation, Organization } from "@/lib/auth";
 import { getAuthData } from "@/lib/auth-server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -25,17 +25,25 @@ export default async function AcceptInvitationPage(props: {
   }
 
   const requestHeaders = await headers();
-  let invitation = null;
+  let invitation: Invitation | null = null;
+  let organization: Organization | null = null;
   let error: string | null = null;
 
   try {
-    const data = await auth.api.getInvitation({
+    invitation = await auth.api.getInvitation({
       query: {
         id: id,
       },
       headers: requestHeaders,
     });
-    invitation = data;
+
+    organization = await auth.api.getFullOrganization({
+      query: {
+        organizationId: invitation.organizationId,
+        membersLimit: 0,
+      },
+      headers: requestHeaders,
+    });
   } catch (err) {
     if (err instanceof APIError) {
       error = err.message;
@@ -66,7 +74,11 @@ export default async function AcceptInvitationPage(props: {
 
   return (
     <div className="flex-1 flex items-center justify-center p-8">
-      <AcceptInvitationClient invitation={invitation} invitationId={id} />
+      <AcceptInvitationClient
+        invitation={invitation}
+        invitationId={id}
+        organizationName={organization?.name}
+      />
     </div>
   );
 }

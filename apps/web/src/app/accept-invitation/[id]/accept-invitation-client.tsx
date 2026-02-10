@@ -18,11 +18,13 @@ import { Invitation } from "@/lib/auth";
 interface AcceptInvitationClientProps {
   invitation: Invitation;
   invitationId: string;
+  organizationName?: string;
 }
 
 export function AcceptInvitationClient({
   invitation,
   invitationId,
+  organizationName,
 }: AcceptInvitationClientProps) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
@@ -75,8 +77,8 @@ export function AcceptInvitationClient({
         <CardTitle>Accept Invitation</CardTitle>
         <CardDescription>
           You have been invited to join{" "}
-          <strong>{invitation.organization?.name || "the organization"}</strong>{" "}
-          as a <strong>{invitation.role}</strong>.
+          <strong>{organizationName || "The organization"}</strong> as a{" "}
+          <strong>{invitation.role}</strong>.
         </CardDescription>
       </CardHeader>
       <CardContent>
