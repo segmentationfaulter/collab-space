@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useParams, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { Plus, ChevronsUpDown, Check, Building2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -46,17 +46,6 @@ export function OrganizationSwitcher({
   const { isOpen: isCreateDialogOpen, setOpen: setCreateDialogOpen } =
     useCreateOrgDialog();
 
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    if (searchParams?.get("create") === "true") {
-      setCreateDialogOpen(true);
-      // Remove the query param without triggering a full navigation
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, "", newUrl);
-    }
-  }, [searchParams, setCreateDialogOpen]);
-
   const [newOrgName, setNewOrgName] = useState("");
   const [newOrgSlug, setNewOrgSlug] = useState("");
   const [isSlugModified, setIsSlugModified] = useState(false);
@@ -81,9 +70,9 @@ export function OrganizationSwitcher({
         },
         {
           onSuccess: (ctx) => {
-            setCreateDialogOpen(false);
             setNewOrgName("");
             setNewOrgSlug("");
+            setCreateDialogOpen(false);
             setIsSlugModified(false);
             toast.success("Workspace created successfully");
             router.push(`/${ctx.data.slug}`);
