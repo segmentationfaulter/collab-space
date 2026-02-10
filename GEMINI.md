@@ -4,6 +4,7 @@
 
 - The primary specification for this project is located at `@docs/specs.md`. Always refer to it for architectural and feature decisions.
 - The engineering workflow is defined in `@docs/workflow.md`.
+- The application's routing and URL strategy is defined in `@docs/url-structure.md`.
 
 ## Current Focus
 
