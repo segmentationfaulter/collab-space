@@ -21,6 +21,7 @@ import { Github } from "lucide-react";
 import { useState, useActionState } from "react";
 import { signUpAction } from "../actions";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 export default function SignUp() {
   const searchParams = useSearchParams();
@@ -136,6 +137,15 @@ export default function SignUp() {
                 </>
               )}
             </Button>
+            <p className="text-center text-sm text-muted-foreground mt-2">
+              Already have an account?{" "}
+              <Link
+                href={`/sign-in${callbackUrl !== "/" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
+                className="text-primary hover:underline font-medium"
+              >
+                Sign In
+              </Link>
+            </p>
           </CardFooter>
         </form>
       </Card>
