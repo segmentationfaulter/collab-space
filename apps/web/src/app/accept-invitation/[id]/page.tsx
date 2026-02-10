@@ -1,7 +1,7 @@
 import { auth, Invitation } from "@/lib/auth";
 import { getAuthData } from "@/lib/auth-server";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import {
   Card,
   CardDescription,
@@ -65,14 +65,18 @@ export default async function AcceptInvitationPage(props: {
     }
   }
 
-  if (error || !invitation) {
+  if (!invitation) {
+    notFound();
+  }
+
+  if (error) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
         <Card className="max-w-md w-full">
           <CardHeader>
             <CardTitle className="text-destructive">Error</CardTitle>
             <CardDescription>
-              {error || "Invitation not found or has expired."}
+              {error || "We encountered an error while fetching the invitation"}
             </CardDescription>
           </CardHeader>
           <CardFooter>
