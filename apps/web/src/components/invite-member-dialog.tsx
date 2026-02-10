@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
-import { Invitation } from "@/lib/auth";
+import { Role } from "@/lib/auth";
 
 type InviteMemberDialogProps = {
   isOpen: boolean;
@@ -37,7 +37,7 @@ export function InviteMemberDialog({
   onSuccess,
 }: InviteMemberDialogProps) {
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<Invitation["role"]>("member");
+  const [role, setRole] = useState<Role>("member");
   const [isPending, setIsPending] = useState(false);
 
   const handleInvite = async (e: React.FormEvent) => {
@@ -92,7 +92,10 @@ export function InviteMemberDialog({
           <Field>
             <FieldLabel>Role</FieldLabel>
             <FieldContent>
-              <Select value={role} onValueChange={setRole}>
+              <Select
+                value={role}
+                onValueChange={(role) => setRole(role as Role)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
