@@ -33,12 +33,17 @@ export default async function MembersPage() {
     })
   ).filter((inv) => inv.status === "pending");
 
+  const currentUserMember = members?.members.find(
+    (m) => m.userId === session.user.id,
+  );
+
   return (
     <MembersClient
       initialMembers={members?.members || []}
       initialInvitations={invitations}
       activeOrganizationId={activeOrganizationId}
       currentUserId={session.user.id}
+      currentUserRole={currentUserMember?.role || "member"}
     />
   );
 }

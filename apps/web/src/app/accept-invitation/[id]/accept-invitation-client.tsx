@@ -83,8 +83,8 @@ export function AcceptInvitationClient({
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">
-          Once you accept, you will have access to the organization's workspaces
-          and projects.
+          {`Once you accept, you will have access to the organization's
+          workspaces and projects.`}
         </p>
       </CardContent>
       <CardFooter className="flex gap-2">

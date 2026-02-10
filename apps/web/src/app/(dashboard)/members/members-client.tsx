@@ -16,13 +16,14 @@ import {
 import { InviteMemberDialog } from "@/components/invite-member-dialog";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import type { Invitation, Member } from "@/lib/auth";
+import type { Invitation, Member, Role } from "@/lib/auth";
 
 type MembersClientProps = {
   initialMembers: Member[];
   initialInvitations: Invitation[];
   activeOrganizationId: string;
   currentUserId: string;
+  currentUserRole: Role;
 };
 
 export function MembersClient({
@@ -30,10 +31,14 @@ export function MembersClient({
   initialInvitations,
   activeOrganizationId,
   currentUserId,
+  currentUserRole,
 }: MembersClientProps) {
   const router = useRouter();
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
+
+  const isAdminOrOwner =
+    currentUserRole === "admin" || currentUserRole === "owner";
 
   const handleCancelInvitation = async (invitationId: string) => {
     setIsPending(true);
@@ -86,10 +91,12 @@ export function MembersClient({
             Manage your team members and invitations.
           </p>
         </div>
-        <Button onClick={() => setIsInviteDialogOpen(true)} className="gap-2">
-          <UserPlus className="h-4 w-4" />
-          Invite Member
-        </Button>
+        {isAdminOrOwner && (
+          <Button onClick={() => setIsInviteDialogOpen(true)} className="gap-2">
+            <UserPlus className="h-4 w-4" />
+            Invite Member
+          </Button>
+        )}
       </div>
 
       <Card>
@@ -120,7 +127,7 @@ export function MembersClient({
                 <Badge variant="secondary" className="capitalize">
                   {member.role}
                 </Badge>
-                {member.user.id !== currentUserId && (
+                {isAdminOrOwner && member.user.id !== currentUserId && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
@@ -163,14 +170,16 @@ export function MembersClient({
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline">{invitation.status}</Badge>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleCancelInvitation(invitation.id)}
-                    disabled={isPending}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  {isAdminOrOwner && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleCancelInvitation(invitation.id)}
+                      disabled={isPending}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
