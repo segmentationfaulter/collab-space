@@ -22,7 +22,9 @@ export default async function AcceptInvitationPage(props: {
   const { session } = await getAuthData();
 
   if (!session) {
-    redirect(`/sign-in?callbackUrl=/accept-invitation/${id}`);
+    redirect(
+      `/sign-in?callbackUrl=${encodeURIComponent(`/accept-invitation/${id}`)}`,
+    );
   }
 
   const requestHeaders = await headers();
