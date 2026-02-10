@@ -1,17 +1,20 @@
-import { Suspense } from "react";
 import Link from "next/link";
 import { Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OrganizationSwitcher } from "@/components/organization-switcher";
 import { LogoutButton } from "@/components/logout-button";
 import { getAuthData } from "@/lib/auth-server";
+import {
+  findOrganizationById,
+  findOrganizationBySlug,
+} from "@/utils/organization";
 
 export async function SiteHeader({ orgSlug }: { orgSlug?: string }) {
   const { session, organizations, activeOrganizationId } = await getAuthData();
 
   const activeOrg = orgSlug
-    ? organizations.find((o) => o.slug === orgSlug)
-    : organizations.find((o) => o.id === activeOrganizationId);
+    ? findOrganizationBySlug(organizations, orgSlug)
+    : findOrganizationById(organizations, activeOrganizationId);
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 sticky top-0 z-50">

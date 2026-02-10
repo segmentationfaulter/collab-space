@@ -27,6 +27,10 @@ import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
 import { useCreateOrgDialog } from "@/hooks/use-create-org-dialog";
 import { Organization } from "@/lib/auth";
 import { toast } from "sonner";
+import {
+  findOrganizationById,
+  findOrganizationBySlug,
+} from "@/utils/organization";
 
 export function OrganizationSwitcher({
   organizations,
@@ -60,8 +64,8 @@ export function OrganizationSwitcher({
 
   // Determine active org based on URL slug first, then fallback to session-based active id
   const activeOrg = orgSlug
-    ? organizations.find((org) => org.slug === orgSlug)
-    : organizations.find((org) => org.id === activeOrganizationId) ||
+    ? findOrganizationBySlug(organizations, orgSlug)
+    : findOrganizationById(organizations, activeOrganizationId) ||
       organizations[0];
 
   const handleCreateOrganization = async (

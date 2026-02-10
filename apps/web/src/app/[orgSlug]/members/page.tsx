@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { MembersClient } from "./members-client";
+import { findOrganizationBySlug } from "@/utils/organization";
 
 export default async function MembersPage({
   params,
@@ -16,7 +17,7 @@ export default async function MembersPage({
     redirect("/sign-in");
   }
 
-  const activeOrg = organizations.find((org) => org.slug === orgSlug);
+  const activeOrg = findOrganizationBySlug(organizations, orgSlug);
 
   if (!activeOrg) {
     notFound();

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getAuthData } from "@/lib/auth-server";
 import { Organization } from "@/lib/auth";
 import { type Session } from "@/lib/auth-client";
+import { findOrganizationBySlug } from "@/utils/organization";
 
 export default async function WorkspacePage({
   params,
@@ -16,7 +17,7 @@ export default async function WorkspacePage({
     redirect("/sign-in");
   }
 
-  const activeOrg = organizations.find((org) => org.slug === orgSlug);
+  const activeOrg = findOrganizationBySlug(organizations, orgSlug);
 
   if (!activeOrg) {
     notFound();
