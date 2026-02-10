@@ -82,13 +82,56 @@ export function MembersClient({
     }
   };
 
+  const handleLeaveOrganization = async () => {
+    const isOwner = currentUserRole === "owner";
+    const otherOwners = initialMembers.filter(
+      (m) => m.role === "owner" && m.user.id !== currentUserId,
+    );
+
+    if (isOwner && otherOwners.length === 0) {
+      toast.error(
+        "You are the only owner. Please transfer ownership before leaving.",
+      );
+      return;
+    }
+
+    if (
+      !confirm(
+        "Are you sure you want to leave this organization? You will lose access to all resources.",
+      )
+    ) {
+      return;
+    }
+
+    setIsPending(true);
+    try {
+      const { error } = await authClient.organization.leave({
+        organizationId: activeOrganizationId,
+      });
+
+      if (error) {
+        toast.error(error.message || "Failed to leave organization");
+      } else {
+        toast.success("You have left the organization");
+        router.push("/");
+        router.refresh();
+      }
+    } catch {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsPending(false);
+    }
+  };
+
   return (
     <div className="p-8 space-y-8 max-w-5xl mx-auto w-full">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Members</h1>
           <p className="text-muted-foreground">
-            Manage your team members and invitations.
+            {isAdminOrOwner
+              ? `Manage your team members and invitations.`
+              : `View your team members`}
           </p>
         </div>
         {isAdminOrOwner && (
@@ -186,6 +229,29 @@ export function MembersClient({
           </CardContent>
         </Card>
       )}
+
+      <Card className="border-destructive/50">
+        <CardHeader>
+          <CardTitle className="text-destructive">Danger Zone</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Leave Organization</p>
+              <p className="text-sm text-muted-foreground">
+                You will lose access to this organization and its resources.
+              </p>
+            </div>
+            <Button
+              variant="destructive"
+              onClick={handleLeaveOrganization}
+              disabled={isPending}
+            >
+              Leave Organization
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <InviteMemberDialog
         isOpen={isInviteDialogOpen}
