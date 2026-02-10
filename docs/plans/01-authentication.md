@@ -60,9 +60,9 @@
 
 #### Task 5.3: Invitation System
 
-- [ ] Implement "Invite Member" UI (email + role selection).
-- [ ] Implement `AcceptInvitation` page logic (`apps/web/src/app/accept-invitation/[id]/page.tsx`).
-- [ ] Add "Members" management view to list and remove organization members.
+- [x] Implement "Invite Member" UI (email + role selection).
+- [x] Implement `AcceptInvitation` page logic (`apps/web/src/app/accept-invitation/[id]/page.tsx`).
+- [x] Add "Members" management view to list and remove organization members.
 - **Verification:** An invited user can join the organization via the invitation link.
 
 ### Task 6: Integration & Protection (tRPC & Middleware)

@@ -87,10 +87,15 @@ function AuthenticatedHome({
               <h3 className="font-semibold mb-2">Projects</h3>
               <p className="text-sm text-muted-foreground">Coming soon...</p>
             </div>
-            <div className="p-6 border rounded-lg bg-card text-card-foreground shadow-sm">
+            <Link
+              href="/members"
+              className="p-6 border rounded-lg bg-card text-card-foreground shadow-sm hover:bg-accent/50 transition-colors"
+            >
               <h3 className="font-semibold mb-2">Team Members</h3>
-              <p className="text-sm text-muted-foreground">Coming soon...</p>
-            </div>
+              <p className="text-sm text-muted-foreground">
+                Invite and manage your team.
+              </p>
+            </Link>
             <div className="p-6 border rounded-lg bg-card text-card-foreground shadow-sm">
               <h3 className="font-semibold mb-2">Settings</h3>
               <p className="text-sm text-muted-foreground">Coming soon...</p>

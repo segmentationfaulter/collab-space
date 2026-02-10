@@ -18,6 +18,14 @@ export async function SiteHeader() {
         <nav className="ml-auto flex items-center gap-4">
           {session ? (
             <>
+              {activeOrganizationId && (
+                <Link
+                  href="/members"
+                  className="text-sm font-medium hover:text-primary transition-colors"
+                >
+                  Members
+                </Link>
+              )}
               <OrganizationSwitcher
                 organizations={organizations}
                 activeOrganizationId={activeOrganizationId}
