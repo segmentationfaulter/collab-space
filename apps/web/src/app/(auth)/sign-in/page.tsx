@@ -20,8 +20,11 @@ import { authClient } from "@/lib/auth-client";
 import { Github } from "lucide-react";
 import { useState, useActionState } from "react";
 import { signInAction } from "../actions";
+import { useSearchParams } from "next/navigation";
 
 export default function SignIn() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [state, action, isPending] = useActionState(signInAction, null);
   const [isSocialPending, setIsSocialPending] = useState(false);
   const [socialError, setSocialError] = useState("");
@@ -38,6 +41,7 @@ export default function SignIn() {
           </CardDescription>
         </CardHeader>
         <form action={action}>
+          <input type="hidden" name="callbackUrl" value={callbackUrl} />
           <CardContent className="space-y-4">
             <Field data-invalid={!!state?.fieldErrors?.identifier}>
               <FieldLabel htmlFor="identifier">Email or Username</FieldLabel>
@@ -93,7 +97,7 @@ export default function SignIn() {
                 try {
                   await authClient.signIn.social({
                     provider: "github",
-                    callbackURL: "/",
+                    callbackURL: callbackUrl,
                   });
                 } catch {
                   setSocialError("An unexpected error occurred");

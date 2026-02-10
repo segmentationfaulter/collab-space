@@ -30,6 +30,7 @@ export async function signInAction(_prevState: unknown, formData: FormData) {
   }
 
   const { identifier, password } = validatedFields.data;
+  const callbackUrl = formData.get("callbackUrl") as string | null;
   const isEmail = identifier.includes("@");
 
   try {
@@ -58,7 +59,7 @@ export async function signInAction(_prevState: unknown, formData: FormData) {
     };
   }
 
-  redirect("/");
+  redirect(callbackUrl || "/");
 }
 
 export async function signUpAction(_prevState: unknown, formData: FormData) {
@@ -74,6 +75,7 @@ export async function signUpAction(_prevState: unknown, formData: FormData) {
   }
 
   const { name, username, email, password } = validatedFields.data;
+  const callbackUrl = formData.get("callbackUrl") as string | null;
 
   try {
     await auth.api.signUpEmail({
@@ -93,5 +95,5 @@ export async function signUpAction(_prevState: unknown, formData: FormData) {
     };
   }
 
-  redirect("/");
+  redirect(callbackUrl || "/");
 }
