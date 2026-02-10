@@ -24,17 +24,19 @@ export default async function MembersPage() {
     headers: requestHeaders,
   });
 
-  const invitations = await auth.api.listInvitations({
-    query: {
-      organizationId: activeOrganizationId,
-    },
-    headers: requestHeaders,
-  });
+  const invitations = (
+    await auth.api.listInvitations({
+      query: {
+        organizationId: activeOrganizationId,
+      },
+      headers: requestHeaders,
+    })
+  ).filter((inv) => inv.status === "pending");
 
   return (
     <MembersClient
       initialMembers={members?.members || []}
-      initialInvitations={invitations || []}
+      initialInvitations={invitations}
       activeOrganizationId={activeOrganizationId}
       currentUserId={session.user.id}
     />
