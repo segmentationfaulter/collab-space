@@ -65,7 +65,7 @@ export function OrganizationSwitcher({
             setNewOrgName("");
             setNewOrgSlug("");
             setIsSlugModified(false);
-            toast.success("Organization created successfully");
+            toast.success("Workspace created successfully");
             router.refresh();
           },
           onError: (ctx) => {

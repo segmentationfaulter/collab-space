@@ -73,7 +73,7 @@ export function InviteMemberDialog({
         <DialogHeader>
           <DialogTitle>Invite Member</DialogTitle>
           <DialogDescription>
-            Invite a new member to your organization.
+            Invite a new member to your workspace.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleInvite} className="space-y-4">

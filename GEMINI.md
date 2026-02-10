@@ -18,3 +18,4 @@
 - **Drizzle Documentation (LLM-friendly):** https://orm.drizzle.team/llms.txt
 - **Shadcn UI Documentation (LLM-friendly):** https://ui.shadcn.com/llms.txt
 - **Package Manager:** This project uses `pnpm`. Use `pnpm dlx` instead of `npx` for one-off commands.
+- **Terminology:** Use **"Workspace"** for all user-facing UI text, labels, and messages. Keep **"Organization"** for backend code, database schemas, API routes, and technical identifiers (e.g., `organizationId`).

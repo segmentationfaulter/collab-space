@@ -82,10 +82,10 @@ export function MembersClient({
     }
   };
 
-  const handleLeaveOrganization = async () => {
+  const handleLeaveWorkspace = async () => {
     if (
       !confirm(
-        "Are you sure you want to leave this organization? You will lose access to all resources.",
+        "Are you sure you want to leave this workspace? You will lose access to all resources.",
       )
     ) {
       return;
@@ -98,9 +98,9 @@ export function MembersClient({
       });
 
       if (error) {
-        toast.error(error.message || "Failed to leave organization");
+        toast.error(error.message || "Failed to leave workspace");
       } else {
-        toast.success("You have left the organization");
+        toast.success("You have left the workspace");
         router.push("/");
         router.refresh();
       }
@@ -111,10 +111,10 @@ export function MembersClient({
     }
   };
 
-  const handleDeleteOrganization = async () => {
+  const handleDeleteWorkspace = async () => {
     if (
       !confirm(
-        "Are you sure you want to delete this organization? This action is permanent and will delete all data.",
+        "Are you sure you want to delete this workspace? This action is permanent and will delete all data.",
       )
     ) {
       return;
@@ -127,9 +127,9 @@ export function MembersClient({
       });
 
       if (error) {
-        toast.error(error.message || "Failed to delete organization");
+        toast.error(error.message || "Failed to delete workspace");
       } else {
-        toast.success("Organization deleted successfully");
+        toast.success("Workspace deleted successfully");
         router.push("/");
         router.refresh();
       }
@@ -256,33 +256,33 @@ export function MembersClient({
             {currentUserRole === "owner" ? (
               <>
                 <div>
-                  <p className="font-medium">Delete Organization</p>
+                  <p className="font-medium">Delete Workspace</p>
                   <p className="text-sm text-muted-foreground">
                     This action is permanent and will delete all data.
                   </p>
                 </div>
                 <Button
                   variant="destructive"
-                  onClick={handleDeleteOrganization}
+                  onClick={handleDeleteWorkspace}
                   disabled={isPending}
                 >
-                  Delete Organization
+                  Delete Workspace
                 </Button>
               </>
             ) : (
               <>
                 <div>
-                  <p className="font-medium">Leave Organization</p>
+                  <p className="font-medium">Leave Workspace</p>
                   <p className="text-sm text-muted-foreground">
-                    You will lose access to this organization and its resources.
+                    You will lose access to this workspace and its resources.
                   </p>
                 </div>
                 <Button
                   variant="destructive"
-                  onClick={handleLeaveOrganization}
+                  onClick={handleLeaveWorkspace}
                   disabled={isPending}
                 >
-                  Leave Organization
+                  Leave Workspace
                 </Button>
               </>
             )}

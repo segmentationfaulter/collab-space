@@ -77,14 +77,14 @@ export function AcceptInvitationClient({
         <CardTitle>Accept Invitation</CardTitle>
         <CardDescription>
           You have been invited to join{" "}
-          <strong>{organizationName || "The organization"}</strong> as a{" "}
+          <strong>{organizationName || "The workspace"}</strong> as a{" "}
           <strong>{invitation.role}</strong>.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">
-          {`Once you accept, you will have access to the organization's
-          workspaces and projects.`}
+          Once you accept, you will have access to the workspace and its
+          projects.
         </p>
       </CardContent>
       <CardFooter className="flex gap-2">
