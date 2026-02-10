@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { headers } from "next/headers";
-import { auth, type Organization } from "./auth";
+import { auth, type Organization, type Role } from "./auth";
 import { findOrganizationBySlug } from "@/utils/organization";
 
 export const getAuthData = cache(async (orgSlug?: string) => {
@@ -12,6 +12,7 @@ export const getAuthData = cache(async (orgSlug?: string) => {
       session: null,
       organizations: [] as Organization[],
       activeOrganizationId: null,
+      userRole: null as Role | null,
     };
   }
 
@@ -59,9 +60,28 @@ export const getAuthData = cache(async (orgSlug?: string) => {
     }
   }
 
+  let userRole: Role | null = null;
+  if (activeOrganizationId) {
+    try {
+      const members = await auth.api.listMembers({
+        query: {
+          organizationId: activeOrganizationId,
+        },
+        headers: requestHeaders,
+      });
+      const currentMember = members?.members.find(
+        (m) => m.userId === session.user.id,
+      );
+      userRole = (currentMember?.role as Role) || null;
+    } catch (error) {
+      console.error("Failed to fetch user role:", error);
+    }
+  }
+
   return {
     session,
     organizations,
     activeOrganizationId,
+    userRole,
   };
 });

@@ -11,7 +11,7 @@ export default async function MembersPage({
   params: Promise<{ orgSlug: string }>;
 }) {
   const { orgSlug } = await params;
-  const { session, organizations } = await getAuthData();
+  const { session, organizations, userRole } = await getAuthData(orgSlug);
 
   if (!session) {
     redirect("/sign-in");
@@ -41,17 +41,13 @@ export default async function MembersPage({
     })
   ).filter((inv) => inv.status === "pending");
 
-  const currentUserMember = members?.members.find(
-    (m) => m.userId === session.user.id,
-  );
-
   return (
     <MembersClient
       initialMembers={members?.members || []}
       initialInvitations={invitations}
       activeOrganizationId={activeOrg.id}
       currentUserId={session.user.id}
-      currentUserRole={currentUserMember?.role || "member"}
+      currentUserRole={userRole || "member"}
     />
   );
 }
