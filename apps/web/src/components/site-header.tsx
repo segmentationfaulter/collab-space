@@ -31,12 +31,10 @@ export async function SiteHeader({ orgSlug }: { orgSlug?: string }) {
                   Members
                 </Link>
               )}
-              <Suspense>
-                <OrganizationSwitcher
-                  organizations={organizations}
-                  activeOrganizationId={activeOrg?.id}
-                />
-              </Suspense>
+              <OrganizationSwitcher
+                organizations={organizations}
+                activeOrganizationId={activeOrg?.id}
+              />
               <LogoutButton />
             </>
           ) : (
