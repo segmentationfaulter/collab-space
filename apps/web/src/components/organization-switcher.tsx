@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, usePathname } from "next/navigation";
 import { Plus, ChevronsUpDown, Check, Building2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -42,6 +42,7 @@ export function OrganizationSwitcher({
 }) {
   const router = useRouter();
   const params = useParams();
+  const pathname = usePathname();
   const orgSlug = params?.orgSlug as string | undefined;
 
   const { isOpen: isCreateDialogOpen, setOpen: setCreateDialogOpen } =
@@ -57,6 +58,17 @@ export function OrganizationSwitcher({
     ? findOrganizationBySlug(organizations, orgSlug)
     : findOrganizationById(organizations, activeOrganizationId) ||
       organizations[0];
+
+  const getOrgLink = (slug: string) => {
+    if (!orgSlug) return `/${slug}`;
+    const segments = pathname.split("/");
+    // Ensure we only replace the slug if it's actually in the expected position
+    if (segments[1] === orgSlug) {
+      segments[1] = slug;
+      return segments.join("/");
+    }
+    return `/${slug}`;
+  };
 
   const handleCreateOrganization = async (
     e: React.FormEvent<HTMLFormElement>,
@@ -131,7 +143,7 @@ export function OrganizationSwitcher({
                   {org.name.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <Link className="flex-1 truncate" href={`/${org.slug}`}>
+              <Link className="flex-1 truncate" href={getOrgLink(org.slug)}>
                 {org.name}
               </Link>
               {activeOrg?.id === org.id && <Check className="h-4 w-4" />}
