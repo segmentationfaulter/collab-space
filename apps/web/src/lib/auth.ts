@@ -1,3 +1,5 @@
+import "server-only";
+
 import { betterAuth } from "better-auth";
 import { username, organization } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";

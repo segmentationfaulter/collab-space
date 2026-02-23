@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Invitation } from "@/lib/auth";
+import type { Invitation } from "@/lib/auth-client";
 
 interface AcceptInvitationClientProps {
   invitation: Invitation;

@@ -25,7 +25,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
 import { useCreateOrgDialog } from "@/hooks/use-create-org-dialog";
-import { Organization } from "@/lib/auth";
+import type { Organization } from "@/lib/auth-client";
 import { toast } from "sonner";
 import {
   findOrganizationById,

@@ -16,7 +16,7 @@ import {
 import { InviteMemberDialog } from "@/components/invite-member-dialog";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import type { Invitation, Member, Role } from "@/lib/auth";
+import type { Invitation, Member, Role } from "@/lib/auth-client";
 
 type MembersClientProps = {
   initialMembers: Member[];
