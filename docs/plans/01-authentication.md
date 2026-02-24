@@ -72,7 +72,4 @@
   - [x] `workspaceMemberProcedure`: Ensures user belongs to the current organization.
   - [x] `workspaceOwnerProcedure`: Ensures user is an Owner or Admin.
 - [x] Update tRPC context to include the `activeOrganizationId`.
-- [ ] Update the homepage to show user info and current workspace, or redirect to login.
-- [ ] Add a Vitest test for the auth-protected tRPC procedure.
-- [ ] Add a Playwright E2E test for the full Sign-up -> Create Workspace -> Invite Member flow.
-- **Verification:** `pnpm test` and `pnpm test:e2e` pass.
+- [x] Update the homepage to show user info and current workspace, or redirect to login.
