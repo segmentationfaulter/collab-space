@@ -8,7 +8,7 @@
 
 ## Current Focus
 
-- **Active Feature:** Authentication (See: `docs/plans/01-authentication.md`)
+- **Active Feature:** Boards, Columns, and Tasks (Kanban) (See: `docs/plans/02-kanban.md`)
 
 ## Rules & Mandates
 

@@ -1,0 +1,62 @@
+# Plan: 02-kanban (Boards, Columns & Tasks)
+
+## Goals
+
+- Implement the core Kanban data model (Boards, Columns, Tasks).
+- Establish tRPC procedures for full CRUD on Kanban entities.
+- Build a functional Kanban board with drag-and-drop capabilities.
+- Implement optimistic updates for a snappy user experience.
+
+## Tasks
+
+### Task 1: Database Schema
+
+- [ ] Create `apps/web/src/db/schemas/kanban-schema.ts`.
+- [ ] Define `boards` table (linked to `organizationId`).
+- [ ] Define `columns` table (linked to `boardId`, includes `position`).
+- [ ] Define `tasks` table (linked to `columnId`, includes `position`, `assigneeId`, `priority`, etc.).
+- [ ] Update `apps/web/src/db/schemas/index.ts` to export the new schema.
+- [ ] Run `pnpm db:push` to update the database.
+- **Verification:** Check database using a tool or Drizzle Studio to ensure tables are created with correct relations.
+
+### Task 2: tRPC Procedures (CRUD)
+
+- [ ] Create `apps/web/src/trpc/api/routers/kanban.ts`.
+- [ ] Implement `getBoards` (protected, filtered by `organizationId`).
+- [ ] Implement `createBoard`.
+- [ ] Implement `getBoardWithColumnsAndTasks`.
+- [ ] Implement `createColumn`, `updateColumn`, `deleteColumn`.
+- [ ] Implement `createTask`, `updateTask`, `deleteTask`.
+- [ ] Implement `reorderTasks` (handles moving tasks between columns and within a column).
+- [ ] Register `kanbanRouter` in `apps/web/src/trpc/api/root.ts`.
+- **Verification:** Use a tRPC playground or a simple test page to verify all CRUD operations work as expected.
+
+### Task 3: Board & Column UI
+
+- [ ] Create a page for listing boards: `apps/web/src/app/[orgSlug]/boards/page.tsx`.
+- [ ] Create a "Create Board" dialog.
+- [ ] Create the main Kanban board view: `apps/web/src/app/[orgSlug]/boards/[boardId]/page.tsx`.
+- [ ] Implement `BoardHeader` and `Column` components.
+- [ ] Add ability to create new columns.
+- **Verification:** User can create a board and see empty columns on the board page.
+
+### Task 4: Task Management UI
+
+- [ ] Create `TaskCard` component.
+- [ ] Implement "Create Task" form within a column.
+- [ ] Implement Task detail view (dialog or sheet) for editing description, priority, etc.
+- **Verification:** User can create tasks in columns and view/edit their details.
+
+### Task 5: Drag-and-Drop Implementation
+
+- [ ] Install `@dnd-kit/core`, `@dnd-kit/sortable`, and `@dnd-kit/utilities`.
+- [ ] Wrap the board in `DndContext`.
+- [ ] Implement `SortableContext` for columns and tasks.
+- [ ] Handle `onDragEnd` to update local state and call `reorderTasks` tRPC procedure.
+- [ ] Implement optimistic updates for task movements.
+- **Verification:** Tasks can be dragged between and within columns, and their new positions persist after a refresh.
+
+### Task 6: Optimistic Updates
+
+- [ ] Implement TanStack Query `onMutate`, `onError`, and `onSettled` for task creation and editing.
+- **Verification:** Task creation and editing feel instantaneous even with artificial network latency.
