@@ -13,7 +13,7 @@
 ### Task 1: tRPC Setup
 
 - [x] Install `@trpc/server`, `@trpc/client`, `@trpc/react-query`, `@trpc/next`, and `zod`.
-- [x] Initialize tRPC on the server (`apps/web/src/server/trpc.ts`).
+- [x] Initialize tRPC on the server (`apps/web/src/trpc/api/init.ts`).
 - [x] Create the root router and a `public` vs `protected` procedure logic.
 - [x] Setup tRPC React provider (in `apps/web/src/components/providers.tsx`).
 - **Verification:** Create a `hello` procedure and call it from the homepage.
@@ -67,11 +67,11 @@
 
 ### Task 6: Integration & Protection (tRPC & Middleware)
 
-- [ ] Create a `protectedProcedure` in tRPC that uses Better Auth session.
-- [ ] Implement Granular Middlewares:
-  - [ ] `workspaceMemberProcedure`: Ensures user belongs to the current organization.
-  - [ ] `workspaceOwnerProcedure`: Ensures user is an Owner or Admin.
-- [ ] Update tRPC context to include the `activeOrganizationId`.
+- [x] Create a `protectedProcedure` in tRPC that uses Better Auth session.
+- [x] Implement Granular Middlewares:
+  - [x] `workspaceMemberProcedure`: Ensures user belongs to the current organization.
+  - [x] `workspaceOwnerProcedure`: Ensures user is an Owner or Admin.
+- [x] Update tRPC context to include the `activeOrganizationId`.
 - [ ] Update the homepage to show user info and current workspace, or redirect to login.
 - [ ] Add a Vitest test for the auth-protected tRPC procedure.
 - [ ] Add a Playwright E2E test for the full Sign-up -> Create Workspace -> Invite Member flow.

@@ -27,7 +27,12 @@ This is where you define your API logic.
 ### `init.ts`
 
 - **Purpose:** Initializes the tRPC engine (`initTRPC`), defines the request context (`createTRPCContext`), and exports procedure helpers (`publicProcedure`, `protectedProcedure`).
-- **Context:** Includes the user session and request headers, using React `cache` to avoid duplicate session fetches per request.
+- **Context:** Includes the user session, request headers, and `activeOrganizationId` (extracted from headers or session), using React `cache` to avoid duplicate session fetches per request.
+- **Procedures:**
+  - `publicProcedure`: No authentication required.
+  - `protectedProcedure`: Requires a valid user session.
+  - `workspaceMemberProcedure`: Requires the user to be a member of the organization (specified via input or context).
+  - `workspaceOwnerProcedure`: Requires the user to be an owner or admin of the organization.
 
 ### `root.ts`
 
