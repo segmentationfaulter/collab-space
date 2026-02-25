@@ -1,8 +1,7 @@
 import { initTRPC, TRPCError } from "@trpc/server";
-import { ZodError, z } from "zod";
+import { ZodError } from "zod";
 import { cache } from "react";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
 import { getAuthData } from "@/lib/auth-server";
 import "server-only";
 
@@ -89,44 +88,24 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
 /**
  * Workspace Member procedure
  *
- * Ensures the user is a member of the specified organization.
- * If no organizationId is provided in the input, it falls back to the activeOrganizationId in context.
+ * Ensures the user is a member of the active organization.
  */
-export const workspaceMemberProcedure = protectedProcedure
-  .input(z.object({ organizationId: z.string().optional() }))
-  .use(async ({ ctx, input, next }) => {
-    const organizationId = input.organizationId ?? ctx.activeOrganizationId;
+export const workspaceMemberProcedure = protectedProcedure.use(
+  async ({ ctx, next }) => {
+    const organizationId = ctx.activeOrganizationId;
 
     if (!organizationId) {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message: "Organization ID is required",
+        message:
+          "No active organization found. Please select or create a workspace.",
       });
     }
 
-    // Check if the user is a member of the organization
-    // We can check this locally from the organizations list in context
-    const isMember = ctx.organizations.some((org) => org.id === organizationId);
-
-    if (!isMember) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "You are not a member of this organization",
-      });
-    }
-
-    // Get the user's role in this organization
-    let role = ctx.userRole;
-
-    // If the organizationId is NOT the active one, we need to fetch the role for this specific org
-    if (organizationId !== ctx.activeOrganizationId) {
-      const res = await auth.api.listMembers({
-        query: { organizationId },
-        headers: ctx.headers,
-      });
-      const member = res?.members.find((m) => m.userId === ctx.session.user.id);
-      role = member?.role || null;
-    }
+    // Since it's the activeOrganizationId, we know the user is a member
+    // because it was verified in getAuthData when the context was created.
+    // We just need to ensure the role is available.
+    const role = ctx.userRole;
 
     if (!role) {
       throw new TRPCError({
@@ -142,7 +121,8 @@ export const workspaceMemberProcedure = protectedProcedure
         userRole: role,
       },
     });
-  });
+  },
+);
 
 /**
  * Workspace Owner/Admin procedure
