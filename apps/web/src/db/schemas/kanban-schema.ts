@@ -6,6 +6,7 @@ import {
   integer,
   index,
   pgEnum,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { organization, user } from "./auth-schema";
 
@@ -86,5 +87,43 @@ export const tasks = pgTable(
   (table) => [
     index("task_column_position_idx").on(table.columnId, table.position),
     index("task_assigneeId_idx").on(table.assigneeId),
+  ],
+);
+
+export const labels = pgTable(
+  "labels",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    color: text("color"),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("label_org_name_idx").on(table.organizationId, table.name),
+  ],
+);
+
+export const taskLabels = pgTable(
+  "task_labels",
+  {
+    taskId: text("task_id")
+      .notNull()
+      .references(() => tasks.id, { onDelete: "cascade" }),
+    labelId: text("label_id")
+      .notNull()
+      .references(() => labels.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.taskId, table.labelId] }),
+    index("task_label_taskId_idx").on(table.taskId),
+    index("task_label_labelId_idx").on(table.labelId),
   ],
 );

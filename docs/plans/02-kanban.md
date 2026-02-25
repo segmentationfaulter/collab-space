@@ -16,9 +16,9 @@
 - [x] Define `columns` table (linked to `boardId`, includes `position`).
 - [x] Define `tasks` table (linked to `columnId`, includes `position`, `assigneeId`, `priority`, etc.).
 - [x] Update `apps/web/src/db/schemas/index.ts` to export the new schema.
-- [ ] Define `labels` table (id, name, color, linked to `organizationId`).
-- [ ] Define `task_labels` join table (taskId, labelId).
-- [ ] Update `apps/web/src/db/relations.ts` with new relations.
+- [x] Define `labels` table (id, name, color, linked to `organizationId`).
+- [x] Define `task_labels` join table (taskId, labelId).
+- [x] Update `apps/web/src/db/relations.ts` with new relations.
 - **Verification:** Check database using a tool or Drizzle Studio to ensure tables are created with correct relations.
 
 ### Task 2: tRPC Procedures (CRUD)
