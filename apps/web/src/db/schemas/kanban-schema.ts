@@ -1,5 +1,20 @@
-import { pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
-import { organization } from "./auth-schema";
+import {
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  integer,
+  index,
+  pgEnum,
+} from "drizzle-orm/pg-core";
+import { organization, user } from "./auth-schema";
+
+export const priorityEnum = pgEnum("priority", [
+  "low",
+  "medium",
+  "high",
+  "urgent",
+]);
 
 export const boards = pgTable(
   "boards",
@@ -23,5 +38,53 @@ export const boards = pgTable(
     // While indexes primarily speed up queries, a unique index also enforces a
     // uniqueness constraint on the indexed columns.
     uniqueIndex("board_org_slug_idx").on(table.organizationId, table.slug),
+  ],
+);
+
+export const columns = pgTable(
+  "columns",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    boardId: text("board_id")
+      .notNull()
+      .references(() => boards.id, { onDelete: "cascade" }),
+    position: integer("position").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("column_board_name_idx").on(table.boardId, table.name),
+  ],
+);
+
+export const tasks = pgTable(
+  "tasks",
+  {
+    id: text("id").primaryKey(),
+    title: text("title").notNull(),
+    description: text("description"),
+    columnId: text("column_id")
+      .notNull()
+      .references(() => columns.id, { onDelete: "cascade" }),
+    position: integer("position").notNull(),
+    priority: priorityEnum("priority").default("medium").notNull(),
+    assigneeId: text("assignee_id").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    dueDate: timestamp("due_date"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("task_columnId_idx").on(table.columnId),
+    index("task_assigneeId_idx").on(table.assigneeId),
+    index("task_position_idx").on(table.position),
   ],
 );

@@ -11,12 +11,11 @@
 
 ### Task 1: Database Schema
 
-- [ ] Create `apps/web/src/db/schemas/kanban-schema.ts`.
-- [ ] Define `boards` table (linked to `organizationId`).
-- [ ] Define `columns` table (linked to `boardId`, includes `position`).
-- [ ] Define `tasks` table (linked to `columnId`, includes `position`, `assigneeId`, `priority`, etc.).
-- [ ] Update `apps/web/src/db/schemas/index.ts` to export the new schema.
-- [ ] Run `pnpm db:push` to update the database.
+- [x] Create `apps/web/src/db/schemas/kanban-schema.ts`.
+- [x] Define `boards` table (linked to `organizationId`).
+- [x] Define `columns` table (linked to `boardId`, includes `position`).
+- [x] Define `tasks` table (linked to `columnId`, includes `position`, `assigneeId`, `priority`, etc.).
+- [x] Update `apps/web/src/db/schemas/index.ts` to export the new schema.
 - **Verification:** Check database using a tool or Drizzle Studio to ensure tables are created with correct relations.
 
 ### Task 2: tRPC Procedures (CRUD)

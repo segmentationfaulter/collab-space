@@ -7,13 +7,14 @@ import {
   member,
   invitation,
 } from "./schemas/auth-schema";
-import { boards } from "./schemas/kanban-schema";
+import { boards, columns, tasks } from "./schemas/kanban-schema";
 
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
   members: many(member),
   invitations: many(invitation),
+  tasks: many(tasks),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -33,7 +34,7 @@ export const accountRelations = relations(account, ({ one }) => ({
 export const organizationRelations = relations(organization, ({ many }) => ({
   members: many(member),
   invitations: many(invitation),
-  boards: many(boards), // Bidirectional link: Organization has many Boards
+  boards: many(boards),
 }));
 
 export const memberRelations = relations(member, ({ one }) => ({
@@ -58,9 +59,29 @@ export const invitationRelations = relations(invitation, ({ one }) => ({
   }),
 }));
 
-export const boardsRelations = relations(boards, ({ one }) => ({
+export const boardsRelations = relations(boards, ({ one, many }) => ({
   organization: one(organization, {
     fields: [boards.organizationId],
     references: [organization.id],
+  }),
+  columns: many(columns),
+}));
+
+export const columnsRelations = relations(columns, ({ one, many }) => ({
+  board: one(boards, {
+    fields: [columns.boardId],
+    references: [boards.id],
+  }),
+  tasks: many(tasks),
+}));
+
+export const tasksRelations = relations(tasks, ({ one }) => ({
+  column: one(columns, {
+    fields: [tasks.columnId],
+    references: [columns.id],
+  }),
+  assignee: one(user, {
+    fields: [tasks.assigneeId],
+    references: [user.id],
   }),
 }));
