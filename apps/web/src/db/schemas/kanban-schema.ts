@@ -58,6 +58,7 @@ export const columns = pgTable(
   },
   (table) => [
     uniqueIndex("column_board_name_idx").on(table.boardId, table.name),
+    index("column_board_position_idx").on(table.boardId, table.position),
   ],
 );
 
@@ -83,8 +84,7 @@ export const tasks = pgTable(
       .notNull(),
   },
   (table) => [
-    index("task_columnId_idx").on(table.columnId),
+    index("task_column_position_idx").on(table.columnId, table.position),
     index("task_assigneeId_idx").on(table.assigneeId),
-    index("task_position_idx").on(table.position),
   ],
 );
