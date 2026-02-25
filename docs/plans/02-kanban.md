@@ -23,8 +23,8 @@
 
 ### Task 2: tRPC Procedures (CRUD)
 
-- [ ] Create `apps/web/src/trpc/api/routers/kanban.ts`.
-- [ ] Implement `getBoards` (protected, filtered by `organizationId`).
+- [x] Create `apps/web/src/trpc/api/routers/kanban.ts`.
+- [x] Implement `getBoards` (protected, filtered by `organizationId`).
 - [ ] Implement `createBoard` (should create default columns: Todo, In Progress, Done).
 - [ ] Implement `updateBoard` and `deleteBoard`.
 - [ ] Implement `getBoardBySlug` (fetches board, columns, and tasks with labels).

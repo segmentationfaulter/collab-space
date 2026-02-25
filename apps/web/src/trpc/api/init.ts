@@ -125,7 +125,7 @@ export const workspaceMemberProcedure = protectedProcedure
         headers: ctx.headers,
       });
       const member = res?.members.find((m) => m.userId === ctx.session.user.id);
-      role = (member?.role as typeof ctx.userRole) || null;
+      role = member?.role || null;
     }
 
     if (!role) {
