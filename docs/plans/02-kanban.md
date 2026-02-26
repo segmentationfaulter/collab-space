@@ -29,7 +29,7 @@
 - [x] Implement `updateBoard` and `deleteBoard`.
 - [x] Implement `getBoardBySlug` (fetches board, columns, and tasks with labels).
 - [x] Implement `createColumn`, `updateColumn`, `deleteColumn`.
-- [ ] Implement `createTask`, `updateTask`, `deleteTask`.
+- [x] Implement `createTask`, `updateTask`, `deleteTask`.
 - [ ] Implement `reorderTasks` (handles moving tasks between columns and within a column).
 - [ ] Implement Label management procedures (`getLabels`, `createLabel`, `updateLabel`, `deleteLabel`).
 - [ ] Implement Task-Label association procedures (`addLabelToTask`, `removeLabelFromTask`).

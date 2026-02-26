@@ -229,4 +229,110 @@ export const kanbanRouter = createTRPCRouter({
 
       return deletedColumn;
     }),
+
+  createTask: workspaceMemberProcedure
+    .input(
+      z.object({
+        columnId: z.string(),
+        title: z.string().min(1),
+        description: z.string().optional(),
+        priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
+        position: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Verify column belongs to organization via board
+      const column = await db.query.columns.findFirst({
+        where: eq(columns.id, input.columnId),
+        with: {
+          board: true,
+        },
+      });
+
+      if (!column || column.board.organizationId !== ctx.organizationId) {
+        throw TRPC_ERRORS.NOT_FOUND("Column");
+      }
+
+      const [newTask] = await db
+        .insert(tasks)
+        .values({
+          id: crypto.randomUUID(),
+          title: input.title,
+          columnId: input.columnId,
+          description: input.description,
+          priority: input.priority,
+          position: input.position,
+        })
+        .returning();
+
+      return newTask;
+    }),
+
+  updateTask: workspaceMemberProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string().min(1).optional(),
+        description: z.string().optional(),
+        priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
+        columnId: z.string().optional(),
+        position: z.number().optional(),
+        assigneeId: z.string().nullable().optional(),
+        dueDate: z.date().nullable().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { id, ...data } = input;
+
+      // Verify task belongs to organization
+      const task = await db.query.tasks.findFirst({
+        where: eq(tasks.id, id),
+        with: {
+          column: {
+            with: {
+              board: true,
+            },
+          },
+        },
+      });
+
+      if (!task || task.column.board.organizationId !== ctx.organizationId) {
+        throw TRPC_ERRORS.NOT_FOUND("Task");
+      }
+
+      const [updatedTask] = await db
+        .update(tasks)
+        .set(data)
+        .where(eq(tasks.id, id))
+        .returning();
+
+      return updatedTask;
+    }),
+
+  deleteTask: workspaceMemberProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      // Verify task belongs to organization
+      const task = await db.query.tasks.findFirst({
+        where: eq(tasks.id, input.id),
+        with: {
+          column: {
+            with: {
+              board: true,
+            },
+          },
+        },
+      });
+
+      if (!task || task.column.board.organizationId !== ctx.organizationId) {
+        throw TRPC_ERRORS.NOT_FOUND("Task");
+      }
+
+      const [deletedTask] = await db
+        .delete(tasks)
+        .where(eq(tasks.id, input.id))
+        .returning();
+
+      return deletedTask;
+    }),
 });
