@@ -31,7 +31,7 @@
 - [x] Implement `createColumn`, `updateColumn` (without position), `deleteColumn`.
 - [x] Implement `createTask`, `updateTask` (without position), `deleteTask`.
 - [ ] Implement `reorderTasks` (handles moving tasks between columns and within a column).
-- [ ] Implement `reorderColumns` (handles moving columns within a board).
+- [x] Implement `reorderColumns` (handles moving columns within a board).
 - [ ] Implement Label management procedures (`getLabels`, `createLabel`, `updateLabel`, `deleteLabel`).
 - [ ] Implement Task-Label association procedures (`addLabelToTask`, `removeLabelFromTask`).
 - [ ] Register `kanbanRouter` in `apps/web/src/trpc/api/root.ts`.

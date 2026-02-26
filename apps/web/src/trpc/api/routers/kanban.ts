@@ -324,4 +324,39 @@ export const kanbanRouter = createTRPCRouter({
 
       return deletedTask;
     }),
+
+  reorderColumns: workspaceMemberProcedure
+    .input(
+      z.object({
+        boardId: z.string(),
+        columnIds: z.array(z.string()),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      // 1. Verify board belongs to organization
+      const board = await db.query.boards.findFirst({
+        where: and(
+          eq(boards.id, input.boardId),
+          eq(boards.organizationId, ctx.organizationId),
+        ),
+      });
+
+      if (!board) {
+        throw TRPC_ERRORS.NOT_FOUND("Board");
+      }
+
+      // 2. Update positions in a transaction
+      return await db.transaction(async (tx) => {
+        const updates = input.columnIds.map((id, index) =>
+          tx
+            .update(columns)
+            .set({ position: index + 1 })
+            .where(and(eq(columns.id, id), eq(columns.boardId, input.boardId))),
+        );
+
+        await Promise.all(updates);
+
+        return { success: true };
+      });
+    }),
 });
