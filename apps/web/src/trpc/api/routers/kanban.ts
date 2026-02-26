@@ -359,4 +359,56 @@ export const kanbanRouter = createTRPCRouter({
         return { success: true };
       });
     }),
+
+  reorderTasks: workspaceMemberProcedure
+    .input(
+      z.object({
+        boardId: z.string(),
+        columnId: z.string(),
+        taskIds: z.array(z.string()),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      // 1. Verify board belongs to organization
+      const board = await db.query.boards.findFirst({
+        where: and(
+          eq(boards.id, input.boardId),
+          eq(boards.organizationId, ctx.organizationId),
+        ),
+      });
+
+      if (!board) {
+        throw TRPC_ERRORS.NOT_FOUND("Board");
+      }
+
+      // 2. Verify column belongs to this board
+      const column = await db.query.columns.findFirst({
+        where: and(
+          eq(columns.id, input.columnId),
+          eq(columns.boardId, input.boardId),
+        ),
+      });
+
+      if (!column) {
+        throw TRPC_ERRORS.NOT_FOUND("Column");
+      }
+
+      // 3. Update tasks in a transaction
+      // This handles both moving within a column and moving to a new column
+      return await db.transaction(async (tx) => {
+        const updates = input.taskIds.map((id, index) =>
+          tx
+            .update(tasks)
+            .set({
+              columnId: input.columnId,
+              position: index + 1,
+            })
+            .where(eq(tasks.id, id)),
+        );
+
+        await Promise.all(updates);
+
+        return { success: true };
+      });
+    }),
 });
