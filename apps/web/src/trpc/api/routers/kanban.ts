@@ -82,15 +82,18 @@ const taskProcedure = workspaceMemberProcedure
     });
   });
 
-export const kanbanRouter = createTRPCRouter({
-  getBoards: workspaceMemberProcedure.query(async ({ ctx }) => {
+/**
+ * Boards Sub-router
+ */
+const boardsRouter = createTRPCRouter({
+  list: workspaceMemberProcedure.query(async ({ ctx }) => {
     return await db.query.boards.findMany({
       where: eq(boards.organizationId, ctx.organizationId),
       orderBy: [desc(boards.createdAt)],
     });
   }),
 
-  createBoard: workspaceMemberProcedure
+  create: workspaceMemberProcedure
     .input(
       z.object({
         id: z.string().optional(),
@@ -123,7 +126,7 @@ export const kanbanRouter = createTRPCRouter({
       });
     }),
 
-  updateBoard: boardProcedure
+  update: boardProcedure
     .input(
       z.object({
         name: z.string().min(1).optional(),
@@ -140,7 +143,7 @@ export const kanbanRouter = createTRPCRouter({
       return updatedBoard;
     }),
 
-  deleteBoard: boardProcedure.mutation(async ({ ctx }) => {
+  delete: boardProcedure.mutation(async ({ ctx }) => {
     const [deletedBoard] = await db
       .delete(boards)
       .where(eq(boards.id, ctx.board.id))
@@ -149,7 +152,7 @@ export const kanbanRouter = createTRPCRouter({
     return deletedBoard;
   }),
 
-  getBoardBySlug: workspaceMemberProcedure
+  getBySlug: workspaceMemberProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ ctx, input }) => {
       const board = await db.query.boards.findFirst({
@@ -183,8 +186,13 @@ export const kanbanRouter = createTRPCRouter({
 
       return board;
     }),
+});
 
-  createColumn: boardProcedure
+/**
+ * Columns Sub-router
+ */
+const columnsRouter = createTRPCRouter({
+  create: boardProcedure
     .input(
       z.object({
         id: z.string().optional(),
@@ -206,7 +214,7 @@ export const kanbanRouter = createTRPCRouter({
       return newColumn;
     }),
 
-  updateColumn: columnProcedure
+  update: columnProcedure
     .input(
       z.object({
         name: z.string().min(1).optional(),
@@ -222,7 +230,7 @@ export const kanbanRouter = createTRPCRouter({
       return updatedColumn;
     }),
 
-  deleteColumn: columnProcedure.mutation(async ({ ctx }) => {
+  delete: columnProcedure.mutation(async ({ ctx }) => {
     const [deletedColumn] = await db
       .delete(columns)
       .where(eq(columns.id, ctx.column.id))
@@ -231,7 +239,33 @@ export const kanbanRouter = createTRPCRouter({
     return deletedColumn;
   }),
 
-  createTask: columnProcedure
+  reorder: boardProcedure
+    .input(
+      z.object({
+        columnIds: z.array(z.string()),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await db.transaction(async (tx) => {
+        const updates = input.columnIds.map((id, index) =>
+          tx
+            .update(columns)
+            .set({ position: index + 1 })
+            .where(and(eq(columns.id, id), eq(columns.boardId, ctx.board.id))),
+        );
+
+        await Promise.all(updates);
+
+        return { success: true };
+      });
+    }),
+});
+
+/**
+ * Tasks Sub-router
+ */
+const tasksRouter = createTRPCRouter({
+  create: columnProcedure
     .input(
       z.object({
         id: z.string().optional(),
@@ -257,7 +291,7 @@ export const kanbanRouter = createTRPCRouter({
       return newTask;
     }),
 
-  updateTask: taskProcedure
+  update: taskProcedure
     .input(
       z.object({
         title: z.string().min(1).optional(),
@@ -278,7 +312,7 @@ export const kanbanRouter = createTRPCRouter({
       return updatedTask;
     }),
 
-  deleteTask: taskProcedure.mutation(async ({ ctx }) => {
+  delete: taskProcedure.mutation(async ({ ctx }) => {
     const [deletedTask] = await db
       .delete(tasks)
       .where(eq(tasks.id, ctx.task.id))
@@ -287,28 +321,7 @@ export const kanbanRouter = createTRPCRouter({
     return deletedTask;
   }),
 
-  reorderColumns: boardProcedure
-    .input(
-      z.object({
-        columnIds: z.array(z.string()),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      return await db.transaction(async (tx) => {
-        const updates = input.columnIds.map((id, index) =>
-          tx
-            .update(columns)
-            .set({ position: index + 1 })
-            .where(and(eq(columns.id, id), eq(columns.boardId, ctx.board.id))),
-        );
-
-        await Promise.all(updates);
-
-        return { success: true };
-      });
-    }),
-
-  reorderTasks: boardProcedure
+  reorder: boardProcedure
     .input(
       z.object({
         columnId: z.string(),
@@ -344,4 +357,13 @@ export const kanbanRouter = createTRPCRouter({
         return { success: true };
       });
     }),
+});
+
+/**
+ * Main Kanban Router
+ */
+export const kanbanRouter = createTRPCRouter({
+  boards: boardsRouter,
+  columns: columnsRouter,
+  tasks: tasksRouter,
 });
