@@ -7,7 +7,7 @@
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "prepare": "husky",
-    "db:push": "pnpm --fileter web db:push",
+    "db:push": "pnpm --filter web db:push",
     "db:studio": "pnpm --filter web db:studio"
   },
   "devDependencies": {
