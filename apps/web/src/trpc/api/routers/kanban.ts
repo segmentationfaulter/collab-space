@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, workspaceMemberProcedure } from "../init";
-import { boards, columns, tasks, labels } from "@/db/schemas";
+import { boards, columns, tasks, labels, taskLabels } from "@/db/schemas";
 import { eq, desc, and, asc } from "drizzle-orm";
 import { db } from "@/db";
 import { TRPC_ERRORS } from "../../shared";
@@ -379,6 +379,47 @@ const tasksRouter = createTRPCRouter({
 
         return { success: true };
       });
+    }),
+
+  addLabel: taskProcedure
+    .input(z.object({ labelId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      // Verify label belongs to organization
+      const label = await db.query.labels.findFirst({
+        where: and(
+          eq(labels.id, input.labelId),
+          eq(labels.organizationId, ctx.organizationId),
+        ),
+      });
+
+      if (!label) {
+        throw TRPC_ERRORS.NOT_FOUND("Label");
+      }
+
+      await db
+        .insert(taskLabels)
+        .values({
+          taskId: ctx.task.id,
+          labelId: input.labelId,
+        })
+        .onConflictDoNothing();
+
+      return { success: true };
+    }),
+
+  removeLabel: taskProcedure
+    .input(z.object({ labelId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await db
+        .delete(taskLabels)
+        .where(
+          and(
+            eq(taskLabels.taskId, ctx.task.id),
+            eq(taskLabels.labelId, input.labelId),
+          ),
+        );
+
+      return { success: true };
     }),
 });
 
