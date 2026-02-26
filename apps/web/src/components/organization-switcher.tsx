@@ -32,6 +32,7 @@ import {
   findOrganizationBySlug,
 } from "@/utils/organization";
 import Link from "next/link";
+import slugify from "slug";
 
 export function OrganizationSwitcher({
   organizations,
@@ -191,12 +192,7 @@ export function OrganizationSwitcher({
                       const name = e.target.value;
                       setNewOrgName(name);
                       if (!isSlugModified) {
-                        setNewOrgSlug(
-                          name
-                            .toLowerCase()
-                            .replace(/ /g, "-")
-                            .replace(/[^\w-]/g, ""),
-                        );
+                        setNewOrgSlug(slugify(name, { lower: true }));
                       }
                     }}
                     required
