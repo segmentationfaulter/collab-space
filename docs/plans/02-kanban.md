@@ -25,7 +25,7 @@
 
 - [x] Create `apps/web/src/trpc/api/routers/kanban.ts`.
 - [x] Implement `getBoards` (protected, filtered by `organizationId`).
-- [ ] Implement `createBoard` (should create default columns: Todo, In Progress, Done).
+- [x] Implement `createBoard` (should create default columns: Todo, In Progress, Done).
 - [ ] Implement `updateBoard` and `deleteBoard`.
 - [ ] Implement `getBoardBySlug` (fetches board, columns, and tasks with labels).
 - [ ] Implement `createColumn`, `updateColumn`, `deleteColumn`.
