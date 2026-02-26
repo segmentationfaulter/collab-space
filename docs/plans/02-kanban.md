@@ -28,7 +28,7 @@
 - [x] Implement `createBoard` (should create default columns: Todo, In Progress, Done).
 - [x] Implement `updateBoard` and `deleteBoard`.
 - [x] Implement `getBoardBySlug` (fetches board, columns, and tasks with labels).
-- [ ] Implement `createColumn`, `updateColumn`, `deleteColumn`.
+- [x] Implement `createColumn`, `updateColumn`, `deleteColumn`.
 - [ ] Implement `createTask`, `updateTask`, `deleteTask`.
 - [ ] Implement `reorderTasks` (handles moving tasks between columns and within a column).
 - [ ] Implement Label management procedures (`getLabels`, `createLabel`, `updateLabel`, `deleteLabel`).
