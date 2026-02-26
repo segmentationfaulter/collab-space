@@ -16,18 +16,17 @@ export const kanbanRouter = createTRPCRouter({
   createBoard: workspaceMemberProcedure
     .input(
       z.object({
+        id: z.string().optional(),
         name: z.string().min(1, "Name is required"),
         slug: z.string().min(1, "Slug is required"),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const boardId = crypto.randomUUID();
-
       return await db.transaction(async (tx) => {
         const [newBoard] = await tx
           .insert(boards)
           .values({
-            id: boardId,
+            id: input.id,
             name: input.name,
             slug: input.slug,
             organizationId: ctx.organizationId,
@@ -36,14 +35,9 @@ export const kanbanRouter = createTRPCRouter({
 
         // Create default columns
         const defaultColumns = [
-          { id: crypto.randomUUID(), name: "Todo", position: 1, boardId },
-          {
-            id: crypto.randomUUID(),
-            name: "In Progress",
-            position: 2,
-            boardId,
-          },
-          { id: crypto.randomUUID(), name: "Done", position: 3, boardId },
+          { name: "Todo", position: 1, boardId: newBoard.id },
+          { name: "In Progress", position: 2, boardId: newBoard.id },
+          { name: "Done", position: 3, boardId: newBoard.id },
         ];
 
         await tx.insert(columns).values(defaultColumns);
@@ -135,6 +129,7 @@ export const kanbanRouter = createTRPCRouter({
   createColumn: workspaceMemberProcedure
     .input(
       z.object({
+        id: z.string().optional(),
         boardId: z.string(),
         name: z.string().min(1),
         position: z.number(),
@@ -156,7 +151,7 @@ export const kanbanRouter = createTRPCRouter({
       const [newColumn] = await db
         .insert(columns)
         .values({
-          id: crypto.randomUUID(),
+          id: input.id,
           name: input.name,
           boardId: input.boardId,
           position: input.position,
@@ -177,8 +172,6 @@ export const kanbanRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
 
-      // Update only if column's board belongs to organization
-      // We join with boards to verify ownership in a single query
       const [updatedColumn] = await db
         .update(columns)
         .set(data)
@@ -206,7 +199,6 @@ export const kanbanRouter = createTRPCRouter({
   deleteColumn: workspaceMemberProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // Delete only if column's board belongs to organization
       const [deletedColumn] = await db
         .delete(columns)
         .where(
@@ -233,6 +225,7 @@ export const kanbanRouter = createTRPCRouter({
   createTask: workspaceMemberProcedure
     .input(
       z.object({
+        id: z.string().optional(),
         columnId: z.string(),
         title: z.string().min(1),
         description: z.string().optional(),
@@ -256,7 +249,7 @@ export const kanbanRouter = createTRPCRouter({
       const [newTask] = await db
         .insert(tasks)
         .values({
-          id: crypto.randomUUID(),
+          id: input.id,
           title: input.title,
           columnId: input.columnId,
           description: input.description,
@@ -284,7 +277,6 @@ export const kanbanRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
 
-      // Verify task belongs to organization
       const task = await db.query.tasks.findFirst({
         where: eq(tasks.id, id),
         with: {
@@ -312,7 +304,6 @@ export const kanbanRouter = createTRPCRouter({
   deleteTask: workspaceMemberProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // Verify task belongs to organization
       const task = await db.query.tasks.findFirst({
         where: eq(tasks.id, input.id),
         with: {

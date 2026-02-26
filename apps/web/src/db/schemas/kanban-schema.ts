@@ -20,7 +20,9 @@ export const priorityEnum = pgEnum("priority", [
 export const boards = pgTable(
   "boards",
   {
-    id: text("id").primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     name: text("name").notNull(),
     slug: text("slug").notNull(),
     organizationId: text("organization_id")
@@ -45,7 +47,9 @@ export const boards = pgTable(
 export const columns = pgTable(
   "columns",
   {
-    id: text("id").primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     name: text("name").notNull(),
     boardId: text("board_id")
       .notNull()
@@ -66,7 +70,9 @@ export const columns = pgTable(
 export const tasks = pgTable(
   "tasks",
   {
-    id: text("id").primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     title: text("title").notNull(),
     description: text("description"),
     columnId: text("column_id")
@@ -93,7 +99,9 @@ export const tasks = pgTable(
 export const labels = pgTable(
   "labels",
   {
-    id: text("id").primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     name: text("name").notNull(),
     color: text("color"),
     organizationId: text("organization_id")
