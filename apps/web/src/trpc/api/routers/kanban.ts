@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, workspaceMemberProcedure } from "../init";
-import { boards, columns, tasks } from "@/db/schemas";
+import { boards, columns, tasks, labels } from "@/db/schemas";
 import { eq, desc, and, asc } from "drizzle-orm";
 import { db } from "@/db";
 import { TRPC_ERRORS } from "../../shared";
@@ -79,6 +79,29 @@ const taskProcedure = workspaceMemberProcedure
 
     return next({
       ctx: { ...ctx, task },
+    });
+  });
+
+/**
+ * Ensures the label exists and belongs to the active organization.
+ * Injects the verified label into the context.
+ */
+const labelProcedure = workspaceMemberProcedure
+  .input(z.object({ labelId: z.string() }))
+  .use(async ({ ctx, input, next }) => {
+    const label = await db.query.labels.findFirst({
+      where: and(
+        eq(labels.id, input.labelId),
+        eq(labels.organizationId, ctx.organizationId),
+      ),
+    });
+
+    if (!label) {
+      throw TRPC_ERRORS.NOT_FOUND("Label");
+    }
+
+    return next({
+      ctx: { ...ctx, label },
     });
   });
 
@@ -360,10 +383,71 @@ const tasksRouter = createTRPCRouter({
 });
 
 /**
+ * Labels Sub-router
+ */
+const labelsRouter = createTRPCRouter({
+  list: workspaceMemberProcedure.query(async ({ ctx }) => {
+    return await db.query.labels.findMany({
+      where: eq(labels.organizationId, ctx.organizationId),
+      orderBy: [asc(labels.name)],
+    });
+  }),
+
+  create: workspaceMemberProcedure
+    .input(
+      z.object({
+        id: z.string().optional(),
+        name: z.string().min(1),
+        color: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [newLabel] = await db
+        .insert(labels)
+        .values({
+          id: input.id,
+          name: input.name,
+          color: input.color,
+          organizationId: ctx.organizationId,
+        })
+        .returning();
+
+      return newLabel;
+    }),
+
+  update: labelProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).optional(),
+        color: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [updatedLabel] = await db
+        .update(labels)
+        .set(input)
+        .where(eq(labels.id, ctx.label.id))
+        .returning();
+
+      return updatedLabel;
+    }),
+
+  delete: labelProcedure.mutation(async ({ ctx }) => {
+    const [deletedLabel] = await db
+      .delete(labels)
+      .where(eq(labels.id, ctx.label.id))
+      .returning();
+
+    return deletedLabel;
+  }),
+});
+
+/**
  * Main Kanban Router
  */
 export const kanbanRouter = createTRPCRouter({
   boards: boardsRouter,
   columns: columnsRouter,
   tasks: tasksRouter,
+  labels: labelsRouter,
 });
