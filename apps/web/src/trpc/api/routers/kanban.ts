@@ -166,7 +166,6 @@ export const kanbanRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         name: z.string().min(1).optional(),
-        position: z.number().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -269,7 +268,6 @@ export const kanbanRouter = createTRPCRouter({
         description: z.string().optional(),
         priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
         columnId: z.string().optional(),
-        position: z.number().optional(),
         assigneeId: z.string().nullable().optional(),
         dueDate: z.date().nullable().optional(),
       }),
