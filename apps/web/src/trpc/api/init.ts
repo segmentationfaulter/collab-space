@@ -1,8 +1,9 @@
-import { initTRPC, TRPCError } from "@trpc/server";
+import { initTRPC } from "@trpc/server";
 import { ZodError } from "zod";
 import { cache } from "react";
 import { headers } from "next/headers";
 import { getAuthData } from "@/lib/auth-server";
+import { TRPC_ERRORS } from "../shared";
 import "server-only";
 
 /**
@@ -73,7 +74,7 @@ export const publicProcedure = t.procedure;
  */
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
   if (!ctx.session || !ctx.session.user) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
+    throw TRPC_ERRORS.UNAUTHORIZED();
   }
 
   return next({
@@ -95,11 +96,9 @@ export const workspaceMemberProcedure = protectedProcedure.use(
     const organizationId = ctx.activeOrganizationId;
 
     if (!organizationId) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message:
-          "No active organization found. Please select or create a workspace.",
-      });
+      throw TRPC_ERRORS.BAD_REQUEST(
+        "No active organization found. Please select or create a workspace.",
+      );
     }
 
     // Since it's the activeOrganizationId, we know the user is a member
@@ -108,10 +107,9 @@ export const workspaceMemberProcedure = protectedProcedure.use(
     const role = ctx.userRole;
 
     if (!role) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Could not verify your role in this organization",
-      });
+      throw TRPC_ERRORS.FORBIDDEN(
+        "Could not verify your role in this organization",
+      );
     }
 
     return next({
@@ -132,10 +130,7 @@ export const workspaceMemberProcedure = protectedProcedure.use(
 export const workspaceOwnerProcedure = workspaceMemberProcedure.use(
   async ({ ctx, next }) => {
     if (ctx.userRole !== "owner" && ctx.userRole !== "admin") {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "You do not have permission to perform this action",
-      });
+      throw TRPC_ERRORS.FORBIDDEN();
     }
     return next({ ctx });
   },

@@ -3,7 +3,7 @@ import { createTRPCRouter, workspaceMemberProcedure } from "../init";
 import { boards, columns, tasks } from "@/db/schemas";
 import { eq, desc, and, asc } from "drizzle-orm";
 import { db } from "@/db";
-import { TRPCError } from "@trpc/server";
+import { TRPC_ERRORS } from "../../shared";
 
 export const kanbanRouter = createTRPCRouter({
   getBoards: workspaceMemberProcedure.query(async ({ ctx }) => {
@@ -71,10 +71,7 @@ export const kanbanRouter = createTRPCRouter({
         .returning();
 
       if (!updatedBoard) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Board not found or you don't have permission",
-        });
+        throw TRPC_ERRORS.NOT_FOUND("Board");
       }
 
       return updatedBoard;
@@ -94,10 +91,7 @@ export const kanbanRouter = createTRPCRouter({
         .returning();
 
       if (!deletedBoard) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Board not found or you don't have permission",
-        });
+        throw TRPC_ERRORS.NOT_FOUND("Board");
       }
 
       return deletedBoard;
@@ -132,7 +126,7 @@ export const kanbanRouter = createTRPCRouter({
       });
 
       if (!board) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Board not found" });
+        throw TRPC_ERRORS.NOT_FOUND("Board");
       }
 
       return board;
