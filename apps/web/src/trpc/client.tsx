@@ -22,7 +22,12 @@ function getQueryClient() {
   if (isServer) {
     return makeQueryClient();
   } else {
-    if (!browserQueryClient) browserQueryClient = makeQueryClient();
+    if (!browserQueryClient) {
+      browserQueryClient = makeQueryClient();
+      if (typeof window !== "undefined") {
+        window.__TANSTACK_QUERY_CLIENT__ = browserQueryClient;
+      }
+    }
     return browserQueryClient;
   }
 }
