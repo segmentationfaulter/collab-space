@@ -9,8 +9,16 @@ import {
 } from "@tanstack/react-query";
 import React, { useState } from "react";
 
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "./api/root";
 import { makeQueryClient, getBaseUrl } from "./shared";
+
+/**
+ * Inference helpers for input and output types
+ * @example type HelloOutput = RouterOutputs['hello']
+ */
+export type RouterInputs = inferRouterInputs<AppRouter>;
+export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
 // Create the tRPC context for client-side hooks
 export const { TRPCProvider: TRPCQueryProvider, useTRPC } =

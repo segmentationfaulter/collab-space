@@ -28,6 +28,7 @@ import {
   FieldError,
 } from "@/components/ui/field";
 import { toast } from "sonner";
+import type { Board, Column, Task } from "@/types/kanban";
 
 type BoardClientProps = {
   orgSlug: string;
@@ -172,7 +173,7 @@ function BoardHeader({
   board,
   onCreateColumn,
 }: {
-  board: any;
+  board: Board;
   onCreateColumn: () => void;
 }) {
   return (
@@ -202,7 +203,7 @@ function BoardHeader({
   );
 }
 
-function BoardColumn({ column }: { column: any }) {
+function BoardColumn({ column }: { column: Column }) {
   return (
     <div className="w-80 shrink-0 flex flex-col max-h-full group/column">
       <div className="flex items-center justify-between mb-4 px-1">
@@ -225,7 +226,7 @@ function BoardColumn({ column }: { column: any }) {
       </div>
 
       <div className="flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar">
-        {column.tasks.map((task: any) => (
+        {column.tasks.map((task) => (
           <TaskCard key={task.id} task={task} />
         ))}
       </div>
@@ -233,7 +234,7 @@ function BoardColumn({ column }: { column: any }) {
   );
 }
 
-function TaskCard({ task }: { task: any }) {
+function TaskCard({ task }: { task: Task }) {
   const priorityColor = {
     low: "bg-blue-500/10 text-blue-500 border-blue-500/20",
     medium: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
@@ -250,7 +251,7 @@ function TaskCard({ task }: { task: any }) {
           </CardTitle>
         </div>
         <div className="flex flex-wrap gap-1">
-          {task.taskLabels.map((tl: any) => (
+          {task.taskLabels.map((tl) => (
             <Badge
               key={tl.label.id}
               variant="outline"
