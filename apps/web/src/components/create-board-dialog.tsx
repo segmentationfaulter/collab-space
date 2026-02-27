@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import slugify from "slug";
 import { toast } from "sonner";
@@ -37,8 +35,6 @@ const createBoardSchema = z.object({
     ),
 });
 
-type CreateBoardValues = z.infer<typeof createBoardSchema>;
-
 type CreateBoardDialogProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -52,38 +48,25 @@ export function CreateBoardDialog({
 }: CreateBoardDialogProps) {
   const router = useRouter();
   const trpc = useTRPC();
+
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
   const [isAutoSlug, setIsAutoSlug] = useState(true);
+  const [errors, setErrors] = useState<{ name?: string; slug?: string }>({});
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<CreateBoardValues>({
-    resolver: zodResolver(createBoardSchema),
-    defaultValues: {
-      name: "",
-      slug: "",
-    },
-  });
-
-  const nameValue = watch("name");
-
-  // Sync name to slug if auto-slug is enabled
-  useEffect(() => {
-    if (isAutoSlug && nameValue) {
-      setValue("slug", slugify(nameValue, { lower: true }));
-    }
-  }, [nameValue, isAutoSlug, setValue]);
+  const resetForm = () => {
+    setName("");
+    setSlug("");
+    setIsAutoSlug(true);
+    setErrors({});
+  };
 
   const createBoard = useMutation(
     trpc.kanban.boards.create.mutationOptions({
       onSuccess: (data) => {
         toast.success("Board created successfully");
         onOpenChange(false);
-        reset();
+        resetForm();
         router.push(`/${orgSlug}/boards/${data.slug}`);
       },
       onError: (error) => {
@@ -92,12 +75,47 @@ export function CreateBoardDialog({
     }),
   );
 
-  const onSubmit = (values: CreateBoardValues) => {
-    createBoard.mutate(values);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const result = createBoardSchema.safeParse({ name, slug });
+
+    if (!result.success) {
+      const fieldErrors: { name?: string; slug?: string } = {};
+      result.error.issues.forEach((err) => {
+        if (err.path[0] === "name") fieldErrors.name = err.message;
+        if (err.path[0] === "slug") fieldErrors.slug = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setErrors({});
+    createBoard.mutate(result.data);
+  };
+
+  const handleNameChange = (newName: string) => {
+    setName(newName);
+    if (isAutoSlug) {
+      setSlug(slugify(newName, { lower: true }));
+    }
+    if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+  };
+
+  const handleSlugChange = (newSlug: string) => {
+    setSlug(newSlug);
+    setIsAutoSlug(false);
+    if (errors.slug) setErrors((prev) => ({ ...prev, slug: undefined }));
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        onOpenChange(open);
+        if (!open) resetForm();
+      }}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Board</DialogTitle>
@@ -105,30 +123,30 @@ export function CreateBoardDialog({
             Boards are where you manage your tasks and columns.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <Field>
-            <FieldLabel>Board Name</FieldLabel>
+            <FieldLabel htmlFor="board-name">Board Name</FieldLabel>
             <FieldContent>
               <Input
+                id="board-name"
                 placeholder="e.g. Marketing Campaign"
-                {...register("name")}
+                value={name}
+                onChange={(e) => handleNameChange(e.target.value)}
                 autoFocus
               />
-              <FieldError errors={[errors.name]} />
+              <FieldError errors={[{ message: errors.name }]} />
             </FieldContent>
           </Field>
           <Field>
-            <FieldLabel>Slug</FieldLabel>
+            <FieldLabel htmlFor="board-slug">Slug</FieldLabel>
             <FieldContent>
               <Input
+                id="board-slug"
                 placeholder="marketing-campaign"
-                {...register("slug")}
-                onChange={(e) => {
-                  setIsAutoSlug(false);
-                  register("slug").onChange(e);
-                }}
+                value={slug}
+                onChange={(e) => handleSlugChange(e.target.value)}
               />
-              <FieldError errors={[errors.slug]} />
+              <FieldError errors={[{ message: errors.slug }]} />
               <p className="text-[10px] text-muted-foreground mt-1">
                 This will be used in the URL: /{orgSlug}/boards/{"{slug}"}
               </p>
@@ -142,8 +160,8 @@ export function CreateBoardDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Creating..." : "Create Board"}
+            <Button type="submit" disabled={createBoard.isPending}>
+              {createBoard.isPending ? "Creating..." : "Create Board"}
             </Button>
           </DialogFooter>
         </form>
