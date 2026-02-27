@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, use } from "react";
+import { useState, use, Suspense } from "react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import { InviteMemberDialog } from "@/components/invite-member-dialog";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import type { Invitation, Member, Role } from "@/types/auth";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type MembersClientProps = {
   membersPromise: Promise<Member[]>;
@@ -33,8 +34,6 @@ export function MembersClient({
   currentUserId,
   currentUserRole,
 }: MembersClientProps) {
-  const initialMembers = use(membersPromise);
-  const initialInvitations = use(invitationsPromise);
   const router = useRouter();
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -166,88 +165,26 @@ export function MembersClient({
           <CardTitle>Team Members</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {initialMembers.map((member) => (
-            <div
-              key={member.id}
-              className="flex items-center justify-between p-4 border rounded-lg"
-            >
-              <div className="flex items-center gap-4">
-                <Avatar>
-                  <AvatarImage src={member.user.image || ""} />
-                  <AvatarFallback>
-                    {member.user.name?.charAt(0) || "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium">{member.user.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {member.user.email}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <Badge variant="secondary" className="capitalize">
-                  {member.role}
-                </Badge>
-                {isAdminOrOwner && member.user.id !== currentUserId && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => handleRemoveMember(member.id)}
-                        disabled={isPending}
-                      >
-                        Remove Member
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </div>
-            </div>
-          ))}
+          <Suspense fallback={<MembersListSkeleton />}>
+            <MembersList
+              membersPromise={membersPromise}
+              isAdminOrOwner={isAdminOrOwner}
+              currentUserId={currentUserId}
+              isPending={isPending}
+              onRemoveMember={handleRemoveMember}
+            />
+          </Suspense>
         </CardContent>
       </Card>
 
-      {initialInvitations.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Pending Invitations</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {initialInvitations.map((invitation) => (
-              <div
-                key={invitation.id}
-                className="flex items-center justify-between p-4 border rounded-lg"
-              >
-                <div>
-                  <p className="font-medium">{invitation.email}</p>
-                  <p className="text-sm text-muted-foreground capitalize">
-                    Role: {invitation.role}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline">{invitation.status}</Badge>
-                  {isAdminOrOwner && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleCancelInvitation(invitation.id)}
-                      disabled={isPending}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+      <Suspense fallback={null}>
+        <InvitationsList
+          invitationsPromise={invitationsPromise}
+          isAdminOrOwner={isAdminOrOwner}
+          isPending={isPending}
+          onCancelInvitation={handleCancelInvitation}
+        />
+      </Suspense>
 
       <Card className="border-destructive/50">
         <CardHeader>
@@ -298,6 +235,145 @@ export function MembersClient({
         organizationId={activeOrganizationId}
         onSuccess={() => router.refresh()}
       />
+    </div>
+  );
+}
+
+function MembersList({
+  membersPromise,
+  isAdminOrOwner,
+  currentUserId,
+  isPending,
+  onRemoveMember,
+}: {
+  membersPromise: Promise<Member[]>;
+  isAdminOrOwner: boolean;
+  currentUserId: string;
+  isPending: boolean;
+  onRemoveMember: (id: string) => Promise<void>;
+}) {
+  const members = use(membersPromise);
+
+  return (
+    <>
+      {members.map((member) => (
+        <div
+          key={member.id}
+          className="flex items-center justify-between p-4 border rounded-lg"
+        >
+          <div className="flex items-center gap-4">
+            <Avatar>
+              <AvatarImage src={member.user.image || ""} />
+              <AvatarFallback>
+                {member.user.name?.charAt(0) || "U"}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-medium">{member.user.name}</p>
+              <p className="text-sm text-muted-foreground">
+                {member.user.email}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <Badge variant="secondary" className="capitalize">
+              {member.role}
+            </Badge>
+            {isAdminOrOwner && member.user.id !== currentUserId && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={() => onRemoveMember(member.id)}
+                    disabled={isPending}
+                  >
+                    Remove Member
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
+function InvitationsList({
+  invitationsPromise,
+  isAdminOrOwner,
+  isPending,
+  onCancelInvitation,
+}: {
+  invitationsPromise: Promise<Invitation[]>;
+  isAdminOrOwner: boolean;
+  isPending: boolean;
+  onCancelInvitation: (id: string) => Promise<void>;
+}) {
+  const invitations = use(invitationsPromise);
+
+  if (invitations.length === 0) return null;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Pending Invitations</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {invitations.map((invitation) => (
+          <div
+            key={invitation.id}
+            className="flex items-center justify-between p-4 border rounded-lg"
+          >
+            <div>
+              <p className="font-medium">{invitation.email}</p>
+              <p className="text-sm text-muted-foreground capitalize">
+                Role: {invitation.role}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">{invitation.status}</Badge>
+              {isAdminOrOwner && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onCancelInvitation(invitation.id)}
+                  disabled={isPending}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+function MembersListSkeleton() {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div
+          key={i}
+          className="flex items-center justify-between p-4 border rounded-lg"
+        >
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-48" />
+            </div>
+          </div>
+          <Skeleton className="h-6 w-16 rounded-full" />
+        </div>
+      ))}
     </div>
   );
 }
