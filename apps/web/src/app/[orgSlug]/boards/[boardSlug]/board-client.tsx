@@ -32,9 +32,18 @@ import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Column, Task } from "@/types/kanban";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 export function BoardHeader({ boardSlug }: { boardSlug: string }) {
   const trpc = useTRPC();
   const [isCreateColumnOpen, setIsCreateColumnOpen] = useState(false);
+  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
 
   // Use non-suspense query to get board data for the shell/actions
   // This enables the "Disabled Strategy"
@@ -65,7 +74,11 @@ export function BoardHeader({ boardSlug }: { boardSlug: string }) {
             <Plus className="h-4 w-4 mr-2" />
             Add Column
           </Button>
-          <Button size="sm" disabled={!board}>
+          <Button
+            size="sm"
+            onClick={() => setIsCreateTaskOpen(true)}
+            disabled={!board || board.columns.length === 0}
+          >
             <Plus className="h-4 w-4 mr-2" />
             New Task
           </Button>
@@ -76,15 +89,179 @@ export function BoardHeader({ boardSlug }: { boardSlug: string }) {
       </div>
 
       {board && (
-        <CreateColumnDialog
-          isOpen={isCreateColumnOpen}
-          onOpenChange={setIsCreateColumnOpen}
-          boardId={board.id}
-          nextPosition={board.columns.length + 1}
-          boardSlug={boardSlug}
-        />
+        <>
+          <CreateColumnDialog
+            isOpen={isCreateColumnOpen}
+            onOpenChange={setIsCreateColumnOpen}
+            boardId={board.id}
+            nextPosition={board.columns.length + 1}
+            boardSlug={boardSlug}
+          />
+          <CreateTaskDialog
+            isOpen={isCreateTaskOpen}
+            onOpenChange={setIsCreateTaskOpen}
+            columns={board.columns}
+            boardSlug={boardSlug}
+          />
+        </>
       )}
     </div>
+  );
+}
+
+import { Textarea } from "@/components/ui/textarea";
+import { FieldGroup } from "@/components/ui/field";
+
+function CreateTaskDialog({
+  isOpen,
+  onOpenChange,
+  columns,
+  boardSlug,
+}: {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  columns: Column[];
+  boardSlug: string;
+}) {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [columnId, setColumnId] = useState(columns[0]?.id);
+  const [priority, setPriority] = useState<
+    "low" | "medium" | "high" | "urgent"
+  >("medium");
+
+  const createTask = useMutation(
+    trpc.kanban.tasks.create.mutationOptions({
+      onSuccess: () => {
+        toast.success("Task created");
+        queryClient.invalidateQueries(
+          trpc.kanban.boards.getBySlug.queryOptions({ slug: boardSlug }),
+        );
+        onOpenChange(false);
+        setTitle("");
+        setDescription("");
+        setPriority("medium");
+      },
+      onError: (err) => {
+        toast.error(err.message || "Failed to create task");
+      },
+    }),
+  );
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim() || !columnId) return;
+
+    const column = columns.find((c) => c.id === columnId);
+    const nextPosition = (column?.tasks.length ?? 0) + 1;
+
+    createTask.mutate({
+      title,
+      description,
+      columnId,
+      priority,
+      position: nextPosition,
+    });
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-125">
+        <DialogHeader>
+          <DialogTitle>Create New Task</DialogTitle>
+          <DialogDescription>
+            Add a new task to your board to start tracking progress.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="task-title">Title</FieldLabel>
+              <FieldContent>
+                <Input
+                  id="task-title"
+                  placeholder="What needs to be done?"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  autoFocus
+                />
+              </FieldContent>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="task-description">Description</FieldLabel>
+              <FieldContent>
+                <Textarea
+                  id="task-description"
+                  placeholder="Add more details about this task..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={4}
+                  className="resize-none"
+                />
+              </FieldContent>
+            </Field>
+
+            <div className="grid grid-cols-2 gap-6">
+              <Field>
+                <FieldLabel>Column</FieldLabel>
+                <FieldContent>
+                  <Select value={columnId} onValueChange={setColumnId}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select column" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {columns.map((col) => (
+                        <SelectItem key={col.id} value={col.id}>
+                          {col.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FieldContent>
+              </Field>
+
+              <Field>
+                <FieldLabel>Priority</FieldLabel>
+                <FieldContent>
+                  <Select
+                    value={priority}
+                    onValueChange={(v) =>
+                      setPriority(v as "low" | "medium" | "high" | "urgent")
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="urgent">Urgent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FieldContent>
+              </Field>
+            </div>
+          </FieldGroup>
+
+          <DialogFooter className="pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={createTask.isPending}>
+              {createTask.isPending ? "Creating..." : "Create Task"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -225,9 +402,6 @@ function BoardColumn({ column }: { column: Column }) {
           </Badge>
         </div>
         <div className="flex items-center gap-1 opacity-0 group-hover/column:opacity-100 transition-opacity">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <Plus className="h-4 w-4" />
-          </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
