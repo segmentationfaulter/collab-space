@@ -4,9 +4,10 @@ import {
   useSuspenseQuery,
   useMutation,
   useQueryClient,
+  useQuery,
 } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Plus, MoreHorizontal, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -28,41 +29,84 @@ import {
   FieldError,
 } from "@/components/ui/field";
 import { toast } from "sonner";
-import type { BoardWithDetails, Column, Task } from "@/types/kanban";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { Column, Task } from "@/types/kanban";
 
-type BoardClientProps = {
-  boardSlug: string;
-};
-
-export function BoardClient({ boardSlug }: BoardClientProps) {
+export function BoardHeader({ boardSlug }: { boardSlug: string }) {
   const trpc = useTRPC();
   const [isCreateColumnOpen, setIsCreateColumnOpen] = useState(false);
 
+  // Use non-suspense query to get board data for the shell/actions
+  // This enables the "Disabled Strategy"
+  const { data: board } = useQuery(
+    trpc.kanban.boards.getBySlug.queryOptions({
+      slug: boardSlug,
+    }),
+  );
+
+  return (
+    <div className="p-8 border-b bg-background shrink-0">
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <Suspense fallback={<Skeleton className="h-9 w-64" />}>
+            <BoardTitle boardSlug={boardSlug} />
+          </Suspense>
+          <p className="text-sm text-muted-foreground">
+            Manage your project tasks and workflow.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsCreateColumnOpen(true)}
+            disabled={!board}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Column
+          </Button>
+          <Button size="sm" disabled={!board}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Task
+          </Button>
+          <Button variant="ghost" size="icon" disabled={!board}>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {board && (
+        <CreateColumnDialog
+          isOpen={isCreateColumnOpen}
+          onOpenChange={setIsCreateColumnOpen}
+          boardId={board.id}
+          nextPosition={board.columns.length + 1}
+          boardSlug={boardSlug}
+        />
+      )}
+    </div>
+  );
+}
+
+function BoardTitle({ boardSlug }: { boardSlug: string }) {
+  const trpc = useTRPC();
+  const { data: board } = useSuspenseQuery(
+    trpc.kanban.boards.getBySlug.queryOptions({ slug: boardSlug }),
+  );
+  return <h1 className="text-3xl font-bold tracking-tight">{board.name}</h1>;
+}
+
+export function BoardColumns({ boardSlug }: { boardSlug: string }) {
+  const trpc = useTRPC();
   const { data: board } = useSuspenseQuery(
     trpc.kanban.boards.getBySlug.queryOptions({ slug: boardSlug }),
   );
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
-      <BoardHeader
-        board={board}
-        onCreateColumn={() => setIsCreateColumnOpen(true)}
-      />
-      <div className="flex-1 overflow-x-auto p-8 bg-accent/5">
-        <div className="flex gap-6 h-full items-start">
-          {board.columns.map((column) => (
-            <BoardColumn key={column.id} column={column} />
-          ))}
-        </div>
-      </div>
-
-      <CreateColumnDialog
-        isOpen={isCreateColumnOpen}
-        onOpenChange={setIsCreateColumnOpen}
-        boardId={board.id}
-        nextPosition={board.columns.length + 1}
-        boardSlug={boardSlug}
-      />
+    <div className="flex gap-6 h-full items-start">
+      {board.columns.map((column) => (
+        <BoardColumn key={column.id} column={column} />
+      ))}
     </div>
   );
 }
@@ -165,40 +209,6 @@ function CreateColumnDialog({
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function BoardHeader({
-  board,
-  onCreateColumn,
-}: {
-  board: BoardWithDetails;
-  onCreateColumn: () => void;
-}) {
-  return (
-    <div className="p-8 border-b bg-background shrink-0">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">{board.name}</h1>
-          <p className="text-sm text-muted-foreground">
-            Manage your project tasks and workflow.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onCreateColumn}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Column
-          </Button>
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            New Task
-          </Button>
-          <Button variant="ghost" size="icon">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    </div>
   );
 }
 
