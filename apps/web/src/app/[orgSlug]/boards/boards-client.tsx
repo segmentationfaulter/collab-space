@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Plus, Layout } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,13 +30,9 @@ export function BoardsClient({ orgSlug }: BoardsClientProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const trpc = useTRPC();
 
-  const { data: boards, isLoading } = useQuery(
+  const { data: boards } = useSuspenseQuery(
     trpc.kanban.boards.list.queryOptions(),
   );
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="p-8 space-y-8 max-w-7xl mx-auto w-full">
