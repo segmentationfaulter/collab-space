@@ -41,10 +41,10 @@
 
 - [x] Create a page for listing boards: `apps/web/src/app/[orgSlug]/boards/page.tsx`.
 - [x] Create a "Create Board" dialog.
-- [ ] Create the main Kanban board view: `apps/web/src/app/[orgSlug]/boards/[boardSlug]/page.tsx`.
-- [ ] Implement `BoardHeader` and `Column` components.
-- [ ] Add ability to create new columns.
-- **Verification:** User can create a board and see empty columns on the board page.
+- [x] Create the main Kanban board view: `apps/web/src/app/[orgSlug]/boards/[boardSlug]/page.tsx`.
+- [x] Implement `BoardHeader` and `Column` components.
+- [x] Add ability to create new columns.
+- **Verification:** User can create a board, see empty columns, and add new columns on the board page.
 
 ### Task 4: Task Management UI
 
