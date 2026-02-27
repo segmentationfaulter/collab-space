@@ -2,6 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 import { headers } from "next/headers";
+import { redirect, notFound } from "next/navigation";
 import { auth, type Organization, type Role } from "./auth";
 import { findOrganizationBySlug } from "@/utils/organization";
 
@@ -87,3 +88,27 @@ export const getAuthData = cache(async (orgSlug?: string) => {
     userRole,
   };
 });
+
+/**
+ * Validates that a user is logged in and belongs to the requested organization.
+ * Returns the session, organizations, and the specific active organization.
+ * Automatically handles redirects and 404s.
+ */
+export async function requireOrgAuth(orgSlug: string) {
+  const authData = await getAuthData(orgSlug);
+
+  if (!authData.session) {
+    redirect("/sign-in");
+  }
+
+  const activeOrg = findOrganizationBySlug(authData.organizations, orgSlug);
+
+  if (!activeOrg) {
+    notFound();
+  }
+
+  return {
+    ...authData,
+    activeOrg,
+  };
+}

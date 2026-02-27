@@ -1,9 +1,7 @@
-import { notFound, redirect } from "next/navigation";
-import Link from "next/link";
-import { getAuthData } from "@/lib/auth-server";
-import { Organization } from "@/lib/auth";
+import { requireOrgAuth } from "@/lib/auth-server";
+import { type Organization } from "@/lib/auth";
 import { type Session } from "@/lib/auth-client";
-import { findOrganizationBySlug } from "@/utils/organization";
+import Link from "next/link";
 
 export default async function WorkspacePage({
   params,
@@ -11,17 +9,7 @@ export default async function WorkspacePage({
   params: Promise<{ orgSlug: string }>;
 }) {
   const { orgSlug } = await params;
-  const { session, organizations } = await getAuthData();
-
-  if (!session) {
-    redirect("/sign-in");
-  }
-
-  const activeOrg = findOrganizationBySlug(organizations, orgSlug);
-
-  if (!activeOrg) {
-    notFound();
-  }
+  const { session, activeOrg } = await requireOrgAuth(orgSlug);
 
   return <AuthenticatedHome session={session} activeOrg={activeOrg} />;
 }

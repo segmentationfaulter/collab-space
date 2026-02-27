@@ -1,9 +1,7 @@
-import { getAuthData } from "@/lib/auth-server";
+import { requireOrgAuth } from "@/lib/auth-server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { redirect, notFound } from "next/navigation";
 import { MembersClient } from "./members-client";
-import { findOrganizationBySlug } from "@/utils/organization";
 
 export default async function MembersPage({
   params,
@@ -11,17 +9,7 @@ export default async function MembersPage({
   params: Promise<{ orgSlug: string }>;
 }) {
   const { orgSlug } = await params;
-  const { session, organizations, userRole } = await getAuthData(orgSlug);
-
-  if (!session) {
-    redirect("/sign-in");
-  }
-
-  const activeOrg = findOrganizationBySlug(organizations, orgSlug);
-
-  if (!activeOrg) {
-    notFound();
-  }
+  const { session, activeOrg, userRole } = await requireOrgAuth(orgSlug);
 
   const requestHeaders = await headers();
 

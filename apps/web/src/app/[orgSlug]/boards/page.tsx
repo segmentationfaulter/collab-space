@@ -1,7 +1,5 @@
 import { Suspense } from "react";
-import { redirect, notFound } from "next/navigation";
-import { getAuthData } from "@/lib/auth-server";
-import { findOrganizationBySlug } from "@/utils/organization";
+import { requireOrgAuth } from "@/lib/auth-server";
 import { BoardsClient } from "./boards-client";
 import { makeQueryClient } from "@/trpc/shared";
 import { trpc } from "@/trpc/server";
@@ -14,17 +12,7 @@ export default async function BoardsPage({
   params: Promise<{ orgSlug: string }>;
 }) {
   const { orgSlug } = await params;
-  const { session, organizations } = await getAuthData(orgSlug);
-
-  if (!session) {
-    redirect("/sign-in");
-  }
-
-  const activeOrg = findOrganizationBySlug(organizations, orgSlug);
-
-  if (!activeOrg) {
-    notFound();
-  }
+  await requireOrgAuth(orgSlug);
 
   const queryClient = makeQueryClient();
   // Start prefetching but don't await. This allows streaming to start immediately.
@@ -32,7 +20,7 @@ export default async function BoardsPage({
 
   return (
     <div className="p-8 space-y-8 max-w-7xl mx-auto w-full">
-      <div className="flex items-center justify-between min-h-[4.5rem]">
+      <div className="flex items-center justify-between min-h-18">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Boards</h1>
           <p className="text-muted-foreground">
