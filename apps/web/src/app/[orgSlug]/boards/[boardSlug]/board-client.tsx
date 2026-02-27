@@ -31,11 +31,10 @@ import { toast } from "sonner";
 import type { BoardWithDetails, Column, Task } from "@/types/kanban";
 
 type BoardClientProps = {
-  orgSlug: string;
   boardSlug: string;
 };
 
-export function BoardClient({ orgSlug, boardSlug }: BoardClientProps) {
+export function BoardClient({ boardSlug }: BoardClientProps) {
   const trpc = useTRPC();
   const [isCreateColumnOpen, setIsCreateColumnOpen] = useState(false);
 
@@ -131,7 +130,7 @@ function CreateColumnDialog({
         <DialogHeader>
           <DialogTitle>Add Column</DialogTitle>
           <DialogDescription>
-            Add a new column to organize your board's workflow.
+            Add a new column to organize your board&apos;s workflow.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -295,9 +294,12 @@ function TaskCard({ task }: { task: Task }) {
           </div>
           {task.assignee && (
             <Avatar className="h-5 w-5 border border-background shadow-sm">
-              <AvatarImage src={task.assignee.image} alt={task.assignee.name} />
+              <AvatarImage
+                src={task.assignee.image ?? undefined}
+                alt={task.assignee.name ?? undefined}
+              />
               <AvatarFallback className="text-[8px]">
-                {task.assignee.name?.slice(0, 2).toUpperCase()}
+                {task.assignee.name.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           )}

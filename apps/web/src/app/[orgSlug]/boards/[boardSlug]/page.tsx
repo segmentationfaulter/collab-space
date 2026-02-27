@@ -23,7 +23,7 @@ export default async function BoardPage({
   return (
     <Suspense fallback={<BoardLoadingSkeleton />}>
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <BoardClient orgSlug={orgSlug} boardSlug={boardSlug} />
+        <BoardClient boardSlug={boardSlug} />
       </HydrationBoundary>
     </Suspense>
   );
