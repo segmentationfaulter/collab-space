@@ -1,6 +1,6 @@
 import { requireOrgAuth } from "@/lib/auth-server";
 import { type Organization } from "@/lib/auth";
-import { type Session } from "@/lib/auth-client";
+import { type Session } from "@/types/auth";
 import Link from "next/link";
 
 export default async function WorkspacePage({

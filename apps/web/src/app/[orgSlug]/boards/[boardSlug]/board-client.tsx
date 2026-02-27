@@ -28,7 +28,7 @@ import {
   FieldError,
 } from "@/components/ui/field";
 import { toast } from "sonner";
-import type { Board, Column, Task } from "@/types/kanban";
+import type { BoardWithDetails, Column, Task } from "@/types/kanban";
 
 type BoardClientProps = {
   orgSlug: string;
@@ -173,7 +173,7 @@ function BoardHeader({
   board,
   onCreateColumn,
 }: {
-  board: Board;
+  board: BoardWithDetails;
   onCreateColumn: () => void;
 }) {
   return (

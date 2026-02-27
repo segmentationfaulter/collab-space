@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
-import type { Role } from "@/lib/auth-client";
+import type { Role } from "@/types/auth";
 
 type InviteMemberDialogProps = {
   isOpen: boolean;
