@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,23 +16,25 @@ import {
 import { InviteMemberDialog } from "@/components/invite-member-dialog";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import type { Invitation, Member, Role } from "@/lib/auth-client";
+import type { Invitation, Member, Role } from "@/types/auth";
 
 type MembersClientProps = {
-  initialMembers: Member[];
-  initialInvitations: Invitation[];
+  membersPromise: Promise<Member[]>;
+  invitationsPromise: Promise<Invitation[]>;
   activeOrganizationId: string;
   currentUserId: string;
   currentUserRole: Role;
 };
 
 export function MembersClient({
-  initialMembers,
-  initialInvitations,
+  membersPromise,
+  invitationsPromise,
   activeOrganizationId,
   currentUserId,
   currentUserRole,
 }: MembersClientProps) {
+  const initialMembers = use(membersPromise);
+  const initialInvitations = use(invitationsPromise);
   const router = useRouter();
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
