@@ -5,6 +5,7 @@ import { makeQueryClient } from "@/trpc/shared";
 import { trpc } from "@/trpc/server";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CreateBoardButton } from "./create-board-button";
 
 export default async function BoardsPage({
   params,
@@ -27,6 +28,7 @@ export default async function BoardsPage({
             Manage your projects and tasks across different boards.
           </p>
         </div>
+        <CreateBoardButton orgSlug={orgSlug} />
       </div>
 
       <Suspense fallback={<BoardsLoadingSkeleton />}>
@@ -40,16 +42,10 @@ export default async function BoardsPage({
 
 function BoardsLoadingSkeleton() {
   return (
-    <div className="space-y-8">
-      <div className="flex justify-end">
-        <Skeleton className="h-10 w-32" />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-32 w-full" />
-        ))}
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <Skeleton key={i} className="h-32 w-full" />
+      ))}
     </div>
   );
 }
