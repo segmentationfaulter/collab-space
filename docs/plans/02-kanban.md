@@ -34,13 +34,13 @@
 - [x] Implement `reorderColumns` (handles moving columns within a board).
 - [x] Implement Label management procedures (`getLabels`, `createLabel`, `updateLabel`, `deleteLabel`).
 - [x] Implement Task-Label association procedures (`addLabelToTask`, `removeLabelFromTask`).
-- [ ] Register `kanbanRouter` in `apps/web/src/trpc/api/root.ts`.
+- [x] Register `kanbanRouter` in `apps/web/src/trpc/api/root.ts`.
 - **Verification:** Use a tRPC playground or a simple test page to verify all CRUD operations work as expected.
 
 ### Task 3: Board & Column UI
 
-- [ ] Create a page for listing boards: `apps/web/src/app/[orgSlug]/boards/page.tsx`.
-- [ ] Create a "Create Board" dialog.
+- [x] Create a page for listing boards: `apps/web/src/app/[orgSlug]/boards/page.tsx`.
+- [x] Create a "Create Board" dialog.
 - [ ] Create the main Kanban board view: `apps/web/src/app/[orgSlug]/boards/[boardSlug]/page.tsx`.
 - [ ] Implement `BoardHeader` and `Column` components.
 - [ ] Add ability to create new columns.

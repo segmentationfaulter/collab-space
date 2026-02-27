@@ -45,10 +45,15 @@ function AuthenticatedHome({
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8">
-          <div className="p-6 border rounded-lg bg-card text-card-foreground shadow-sm">
+          <Link
+            href={`/${activeOrg.slug}/boards`}
+            className="p-6 border rounded-lg bg-card text-card-foreground shadow-sm hover:bg-accent/50 transition-colors"
+          >
             <h3 className="font-semibold mb-2">Boards</h3>
-            <p className="text-sm text-muted-foreground">Coming soon...</p>
-          </div>
+            <p className="text-sm text-muted-foreground">
+              Manage your project boards and tasks.
+            </p>
+          </Link>
           <Link
             href={`/${activeOrg.slug}/members`}
             className="p-6 border rounded-lg bg-card text-card-foreground shadow-sm hover:bg-accent/50 transition-colors"
