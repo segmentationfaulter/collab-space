@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 import slugify from "slug";
 import { toast } from "sonner";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -48,6 +48,7 @@ export function CreateBoardDialog({
 }: CreateBoardDialogProps) {
   const router = useRouter();
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
 
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -65,6 +66,7 @@ export function CreateBoardDialog({
     trpc.kanban.boards.create.mutationOptions({
       onSuccess: (data) => {
         toast.success("Board created successfully");
+        queryClient.invalidateQueries(trpc.kanban.boards.list.queryOptions());
         onOpenChange(false);
         resetForm();
         router.push(`/${orgSlug}/boards/${data.slug}`);
