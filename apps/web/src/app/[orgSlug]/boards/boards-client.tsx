@@ -35,14 +35,8 @@ export function BoardsClient({ orgSlug }: BoardsClientProps) {
   );
 
   return (
-    <div className="p-8 space-y-8 max-w-7xl mx-auto w-full">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Boards</h1>
-          <p className="text-muted-foreground">
-            Manage your projects and tasks across different boards.
-          </p>
-        </div>
+    <>
+      <div className="flex justify-end">
         <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />
           Create Board
@@ -92,6 +86,6 @@ export function BoardsClient({ orgSlug }: BoardsClientProps) {
         onOpenChange={setIsCreateDialogOpen}
         orgSlug={orgSlug}
       />
-    </div>
+    </>
   );
 }

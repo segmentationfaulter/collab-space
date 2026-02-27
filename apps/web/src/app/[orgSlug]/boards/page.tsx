@@ -31,26 +31,33 @@ export default async function BoardsPage({
   void queryClient.prefetchQuery(trpc.kanban.boards.list.queryOptions());
 
   return (
-    <Suspense fallback={<BoardsLoadingSkeleton />}>
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <BoardsClient orgSlug={orgSlug} />
-      </HydrationBoundary>
-    </Suspense>
+    <div className="p-8 space-y-8 max-w-7xl mx-auto w-full">
+      <div className="flex items-center justify-between min-h-[4.5rem]">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Boards</h1>
+          <p className="text-muted-foreground">
+            Manage your projects and tasks across different boards.
+          </p>
+        </div>
+      </div>
+
+      <Suspense fallback={<BoardsLoadingSkeleton />}>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <BoardsClient orgSlug={orgSlug} />
+        </HydrationBoundary>
+      </Suspense>
+    </div>
   );
 }
 
 function BoardsLoadingSkeleton() {
   return (
-    <div className="p-8 space-y-8 max-w-7xl mx-auto w-full">
-      <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <Skeleton className="h-9 w-40" />
-          <Skeleton className="h-5 w-80" />
-        </div>
+    <div className="space-y-8">
+      <div className="flex justify-end">
         <Skeleton className="h-10 w-32" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array.from({ length: 3 }).map((_, i) => (
           <Skeleton key={i} className="h-32 w-full" />
         ))}
