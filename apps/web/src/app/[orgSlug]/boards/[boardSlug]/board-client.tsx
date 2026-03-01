@@ -10,7 +10,16 @@ import {
 } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
 import { useState, Suspense } from "react";
-import { Plus, MoreHorizontal, Calendar } from "lucide-react";
+import {
+  Plus,
+  MoreHorizontal,
+  Calendar,
+  AlertCircle,
+  Clock,
+  ArrowDown,
+  ArrowUp,
+  Minus,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -395,12 +404,28 @@ function TaskCard({ task }: { task: Task }) {
     orgSlug: string;
     boardSlug: string;
   };
-  const priorityColor = {
-    low: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    medium: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
-    high: "bg-orange-500/10 text-orange-500 border-orange-500/20",
-    urgent: "bg-red-500/10 text-red-500 border-red-500/20",
+
+  const priorityConfig = {
+    low: {
+      color: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+      icon: ArrowDown,
+    },
+    medium: {
+      color: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+      icon: Minus,
+    },
+    high: {
+      color: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+      icon: ArrowUp,
+    },
+    urgent: {
+      color: "bg-red-500/10 text-red-500 border-red-500/20",
+      icon: AlertCircle,
+    },
   };
+
+  const priority = (task.priority as keyof typeof priorityConfig) || "medium";
+  const { color: priorityColor, icon: PriorityIcon } = priorityConfig[priority];
 
   return (
     <Link href={`/${orgSlug}/boards/${boardSlug}/tasks/${task.id}`}>
@@ -416,17 +441,18 @@ function TaskCard({ task }: { task: Task }) {
               <Badge
                 key={tl.label.id}
                 variant="outline"
-                className="px-1.5 py-0 text-[10px] font-normal"
+                className="px-2 py-0 text-[9px] font-normal rounded-full border-none"
                 style={{
                   color: tl.label.color || undefined,
-                  borderColor: tl.label.color
-                    ? `${tl.label.color}40`
-                    : undefined,
                   backgroundColor: tl.label.color
-                    ? `${tl.label.color}10`
+                    ? `${tl.label.color}15`
                     : undefined,
                 }}
               >
+                <div
+                  className="mr-1.5 h-1 w-1 rounded-full shrink-0"
+                  style={{ backgroundColor: tl.label.color || "#ccc" }}
+                />
                 {tl.label.name}
               </Badge>
             ))}
@@ -442,13 +468,14 @@ function TaskCard({ task }: { task: Task }) {
             <div className="flex items-center gap-2">
               <Badge
                 variant="outline"
-                className={`px-1.5 py-0 text-[10px] font-medium uppercase ${priorityColor[task.priority as keyof typeof priorityColor]}`}
+                className={`px-1.5 py-0 text-[10px] font-semibold uppercase rounded-sm border ${priorityColor}`}
               >
-                {task.priority}
+                <PriorityIcon className="h-2.5 w-2.5 mr-1" />
+                {priority}
               </Badge>
               {task.dueDate && (
                 <div className="flex items-center text-[10px] text-muted-foreground">
-                  <Calendar className="h-3 w-3 mr-1" />
+                  <Clock className="h-3 w-3 mr-1" />
                   {new Date(task.dueDate).toLocaleDateString(undefined, {
                     month: "short",
                     day: "numeric",
