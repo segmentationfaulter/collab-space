@@ -344,7 +344,7 @@ const tasksRouter = createTRPCRouter({
         priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
         columnId: z.string().optional(),
         assigneeId: z.string().nullable().optional(),
-        dueDate: z.date().nullable().optional(),
+        dueDate: z.coerce.date().nullable().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
