@@ -50,7 +50,7 @@
 
 - [x] Create `TaskCard` component (with label support).
 - [x] Implement "Create Task" form within a column.
-- [ ] Implement Task detail view (dialog or sheet) for editing description, priority, labels, etc.
+- [x] Implement Task detail view (dialog or sheet) for editing description, priority, labels, etc.
 - **Verification:** User can create tasks in columns and view/edit their details.
 
 ### Task 5: Drag-and-Drop Implementation

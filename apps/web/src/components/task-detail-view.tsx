@@ -8,8 +8,6 @@ import {
 import { useTRPC } from "@/trpc/client";
 import { useState } from "react";
 import { CalendarIcon, User, Tag, AlertCircle, X, Check } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,11 +23,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
+import { DatePicker } from "./date-picker";
 
 export function TaskDetailView({
   taskId,
@@ -211,33 +209,12 @@ export function TaskDetailView({
             <CalendarIcon className="h-4 w-4" />
             <span>Due Date</span>
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !task.dueDate && "text-muted-foreground",
-                )}
-              >
-                {task.dueDate ? (
-                  format(new Date(task.dueDate), "PPP")
-                ) : (
-                  <span>Pick a date</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={task.dueDate ? new Date(task.dueDate) : undefined}
-                onSelect={(date) =>
-                  updateTask.mutate({ taskId, dueDate: date || null })
-                }
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+          <DatePicker
+            date={task.dueDate ? new Date(task.dueDate) : null}
+            onSelect={(date) =>
+              updateTask.mutate({ taskId, dueDate: date || null })
+            }
+          />
         </div>
 
         {/* Labels */}
