@@ -130,9 +130,6 @@ function CreateTaskDialog({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [columnId, setColumnId] = useState(columns[0]?.id);
-  const [priority, setPriority] = useState<
-    "low" | "medium" | "high" | "urgent"
-  >("medium");
 
   const createTask = useMutation(
     trpc.kanban.tasks.create.mutationOptions({
@@ -144,7 +141,6 @@ function CreateTaskDialog({
         onOpenChange(false);
         setTitle("");
         setDescription("");
-        setPriority("medium");
       },
       onError: (err) => {
         toast.error(err.message || "Failed to create task");
@@ -163,7 +159,6 @@ function CreateTaskDialog({
       title,
       description,
       columnId,
-      priority,
       position: nextPosition,
     });
   };
@@ -206,47 +201,23 @@ function CreateTaskDialog({
               </FieldContent>
             </Field>
 
-            <div className="grid grid-cols-2 gap-6">
-              <Field>
-                <FieldLabel>Column</FieldLabel>
-                <FieldContent>
-                  <Select value={columnId} onValueChange={setColumnId}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select column" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {columns.map((col) => (
-                        <SelectItem key={col.id} value={col.id}>
-                          {col.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FieldContent>
-              </Field>
-
-              <Field>
-                <FieldLabel>Priority</FieldLabel>
-                <FieldContent>
-                  <Select
-                    value={priority}
-                    onValueChange={(v) =>
-                      setPriority(v as "low" | "medium" | "high" | "urgent")
-                    }
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="urgent">Urgent</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FieldContent>
-              </Field>
-            </div>
+            <Field>
+              <FieldLabel>Column</FieldLabel>
+              <FieldContent>
+                <Select value={columnId} onValueChange={setColumnId}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select column" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {columns.map((col) => (
+                      <SelectItem key={col.id} value={col.id}>
+                        {col.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FieldContent>
+            </Field>
           </FieldGroup>
 
           <DialogFooter className="pt-2">
