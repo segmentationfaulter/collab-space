@@ -107,23 +107,23 @@ export function TaskDetailView({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Title */}
-      <div className="space-y-1">
-        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="space-y-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80 px-1">
           Title
         </label>
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onBlur={handleTitleBlur}
-          className="text-xl font-bold border-transparent hover:border-input focus:border-input px-0 focus:px-3 h-auto py-2 transition-all bg-transparent"
+          className="text-2xl font-bold border-input/50 focus-visible:border-input focus-visible:ring-1 hover:border-input px-3 h-auto py-2 transition-all bg-accent/5 shadow-none"
         />
       </div>
 
       {/* Description */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80 px-1">
           Description
         </label>
         <Textarea
@@ -131,18 +131,18 @@ export function TaskDetailView({
           onChange={(e) => setDescription(e.target.value)}
           onBlur={handleDescriptionBlur}
           placeholder="Add a more detailed description..."
-          className="min-h-30 resize-none border-transparent hover:border-input focus:border-input px-0 focus:px-3 transition-all bg-transparent"
+          className="min-h-32 resize-none border-input/50 focus-visible:border-input focus-visible:ring-1 hover:border-input px-3 transition-all bg-accent/5 shadow-none"
         />
       </div>
 
-      <Separator />
+      <Separator className="my-2" />
 
       {/* Metadata Grid */}
-      <div className="grid grid-cols-2 gap-x-12 gap-y-8">
+      <div className="grid grid-cols-2 gap-x-10 gap-y-6">
         {/* Priority */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <AlertCircle className="h-4 w-4" />
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80 px-1">
+            <AlertCircle className="h-3 w-3" />
             <span>Priority</span>
           </div>
           <Select
@@ -154,7 +154,7 @@ export function TaskDetailView({
               })
             }
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full bg-accent/5 border-input/50 hover:border-input hover:bg-accent/10 transition-all shadow-none">
               <SelectValue placeholder="Set priority" />
             </SelectTrigger>
             <SelectContent>
@@ -167,9 +167,9 @@ export function TaskDetailView({
         </div>
 
         {/* Assignee */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <User className="h-4 w-4" />
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80 px-1">
+            <User className="h-3 w-3" />
             <span>Assignee</span>
           </div>
           <Select
@@ -181,7 +181,7 @@ export function TaskDetailView({
               })
             }
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full bg-accent/5 border-input/50 hover:border-input hover:bg-accent/10 transition-all shadow-none">
               <SelectValue placeholder="Select member" />
             </SelectTrigger>
             <SelectContent>
@@ -204,12 +204,13 @@ export function TaskDetailView({
         </div>
 
         {/* Due Date */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <CalendarIcon className="h-4 w-4" />
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80 px-1">
+            <CalendarIcon className="h-3 w-3" />
             <span>Due Date</span>
           </div>
           <DatePicker
+            className="w-full bg-accent/5 border-input/50 hover:border-input hover:bg-accent/10 transition-all shadow-none"
             date={task.dueDate ? new Date(task.dueDate) : null}
             onSelect={(date) =>
               updateTask.mutate({ taskId, dueDate: date || null })
@@ -218,22 +219,25 @@ export function TaskDetailView({
         </div>
 
         {/* Labels */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <Tag className="h-4 w-4" />
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80 px-1">
+            <Tag className="h-3 w-3" />
             <span>Labels</span>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 pt-1">
             {task.taskLabels.map((tl) => (
               <Badge
                 key={tl.label.id}
                 variant="secondary"
-                className="pl-2 pr-1 py-1 gap-1"
+                className="pl-2 pr-1 py-0.5 gap-1 text-[11px] font-normal"
                 style={{
                   backgroundColor: tl.label.color
-                    ? `${tl.label.color}20`
+                    ? `${tl.label.color}15`
                     : undefined,
                   color: tl.label.color || undefined,
+                  borderColor: tl.label.color
+                    ? `${tl.label.color}30`
+                    : undefined,
                 }}
               >
                 {tl.label.name}
@@ -241,7 +245,7 @@ export function TaskDetailView({
                   onClick={() =>
                     removeLabel.mutate({ taskId, labelId: tl.label.id })
                   }
-                  className="hover:bg-background/20 rounded-full p-0.5"
+                  className="hover:bg-background/20 rounded-full p-0.5 transition-colors"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -252,7 +256,7 @@ export function TaskDetailView({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 px-2 text-xs"
+                  className="h-6 px-2 text-[10px] bg-transparent border-dashed hover:border-solid hover:bg-accent/50 transition-all shadow-none"
                 >
                   + Add Label
                 </Button>

@@ -28,11 +28,13 @@ export function TaskDetailSheet({
 
   return (
     <Sheet open onOpenChange={handleOpenChange}>
-      <SheetContent className="sm:max-w-xl overflow-y-auto">
-        <SheetHeader className="pb-6 border-b">
-          <SheetTitle className="text-2xl font-bold">Task Details</SheetTitle>
+      <SheetContent className="sm:max-w-xl overflow-y-auto p-0 flex flex-col gap-0">
+        <SheetHeader className="px-6 py-4 border-b shrink-0 flex flex-row items-center justify-between">
+          <SheetTitle className="text-lg font-semibold">
+            Task Details
+          </SheetTitle>
         </SheetHeader>
-        <div className="pt-6">
+        <div className="flex-1 px-6 py-8">
           <Suspense fallback={<TaskDetailSkeleton />}>
             <TaskDetailView taskId={taskId} boardSlug={boardSlug} />
           </Suspense>
