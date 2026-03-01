@@ -1,5 +1,7 @@
 "use client";
 
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import {
   useSuspenseQuery,
   useMutation,
@@ -418,6 +420,10 @@ function BoardColumn({ column }: { column: Column }) {
 }
 
 function TaskCard({ task }: { task: Task }) {
+  const { orgSlug, boardSlug } = useParams() as {
+    orgSlug: string;
+    boardSlug: string;
+  };
   const priorityColor = {
     low: "bg-blue-500/10 text-blue-500 border-blue-500/20",
     medium: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
@@ -426,69 +432,73 @@ function TaskCard({ task }: { task: Task }) {
   };
 
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing group">
-      <CardHeader className="p-3 pb-2 space-y-2">
-        <div className="flex items-start justify-between">
-          <CardTitle className="text-sm font-medium leading-tight group-hover:text-primary transition-colors">
-            {task.title}
-          </CardTitle>
-        </div>
-        <div className="flex flex-wrap gap-1">
-          {task.taskLabels.map((tl) => (
-            <Badge
-              key={tl.label.id}
-              variant="outline"
-              className="px-1.5 py-0 text-[10px] font-normal"
-              style={{
-                color: tl.label.color || undefined,
-                borderColor: tl.label.color ? `${tl.label.color}40` : undefined,
-                backgroundColor: tl.label.color
-                  ? `${tl.label.color}10`
-                  : undefined,
-              }}
-            >
-              {tl.label.name}
-            </Badge>
-          ))}
-        </div>
-      </CardHeader>
-      <CardContent className="p-3 pt-0 space-y-3">
-        {task.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2">
-            {task.description}
-          </p>
-        )}
-        <div className="flex items-center justify-between gap-2 pt-1">
-          <div className="flex items-center gap-2">
-            <Badge
-              variant="outline"
-              className={`px-1.5 py-0 text-[10px] font-medium uppercase ${priorityColor[task.priority as keyof typeof priorityColor]}`}
-            >
-              {task.priority}
-            </Badge>
-            {task.dueDate && (
-              <div className="flex items-center text-[10px] text-muted-foreground">
-                <Calendar className="h-3 w-3 mr-1" />
-                {new Date(task.dueDate).toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </div>
+    <Link href={`/${orgSlug}/boards/${boardSlug}/tasks/${task.id}`}>
+      <Card className="shadow-sm hover:shadow-md transition-shadow cursor-pointer active:cursor-grabbing group">
+        <CardHeader className="p-3 pb-2 space-y-2">
+          <div className="flex items-start justify-between">
+            <CardTitle className="text-sm font-medium leading-tight group-hover:text-primary transition-colors">
+              {task.title}
+            </CardTitle>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {task.taskLabels.map((tl) => (
+              <Badge
+                key={tl.label.id}
+                variant="outline"
+                className="px-1.5 py-0 text-[10px] font-normal"
+                style={{
+                  color: tl.label.color || undefined,
+                  borderColor: tl.label.color
+                    ? `${tl.label.color}40`
+                    : undefined,
+                  backgroundColor: tl.label.color
+                    ? `${tl.label.color}10`
+                    : undefined,
+                }}
+              >
+                {tl.label.name}
+              </Badge>
+            ))}
+          </div>
+        </CardHeader>
+        <CardContent className="p-3 pt-0 space-y-3">
+          {task.description && (
+            <p className="text-xs text-muted-foreground line-clamp-2">
+              {task.description}
+            </p>
+          )}
+          <div className="flex items-center justify-between gap-2 pt-1">
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className={`px-1.5 py-0 text-[10px] font-medium uppercase ${priorityColor[task.priority as keyof typeof priorityColor]}`}
+              >
+                {task.priority}
+              </Badge>
+              {task.dueDate && (
+                <div className="flex items-center text-[10px] text-muted-foreground">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  {new Date(task.dueDate).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </div>
+              )}
+            </div>
+            {task.assignee && (
+              <Avatar className="h-5 w-5 border border-background shadow-sm">
+                <AvatarImage
+                  src={task.assignee.image ?? undefined}
+                  alt={task.assignee.name ?? undefined}
+                />
+                <AvatarFallback className="text-[8px]">
+                  {task.assignee.name.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
             )}
           </div>
-          {task.assignee && (
-            <Avatar className="h-5 w-5 border border-background shadow-sm">
-              <AvatarImage
-                src={task.assignee.image ?? undefined}
-                alt={task.assignee.name ?? undefined}
-              />
-              <AvatarFallback className="text-[8px]">
-                {task.assignee.name.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

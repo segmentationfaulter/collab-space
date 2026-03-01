@@ -288,6 +288,28 @@ const columnsRouter = createTRPCRouter({
  * Tasks Sub-router
  */
 const tasksRouter = createTRPCRouter({
+  get: taskProcedure.query(async ({ ctx }) => {
+    // We already have the task with column and board in context from taskProcedure
+    // But we might want more relations like labels and assignee
+    const task = await db.query.tasks.findFirst({
+      where: eq(tasks.id, ctx.task.id),
+      with: {
+        taskLabels: {
+          with: {
+            label: true,
+          },
+        },
+        assignee: true,
+      },
+    });
+
+    if (!task) {
+      throw TRPC_ERRORS.NOT_FOUND("Task");
+    }
+
+    return task;
+  }),
+
   create: columnProcedure
     .input(
       z.object({

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, createTRPCRouter } from "./init";
 import { kanbanRouter } from "./routers/kanban";
+import { membersRouter } from "./routers/members";
 
 export const appRouter = createTRPCRouter({
   hello: publicProcedure
@@ -15,6 +16,7 @@ export const appRouter = createTRPCRouter({
       };
     }),
   kanban: kanbanRouter,
+  members: membersRouter,
 });
 
 // Export type definition of API
