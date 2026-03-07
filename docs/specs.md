@@ -46,8 +46,8 @@
 
 - **Database:** PostgreSQL
 - **ORM:** Drizzle ORM (with `postgres.js` driver)
-- **Caching & queue:** Redis
-- **Background jobs:** BullMQ (worker process)
+- **Caching & real-time pub/sub:** Redis (Upstash)
+- **Background jobs:** Inngest (Serverless event-driven jobs)
 - **Real-time:** Server-Sent Events (SSE) using Next.js route handlers (for live updates)
 
 ### 2.4 Offline-First & PWA
@@ -79,13 +79,15 @@
   - unit + integration tests
   - build (Next.js)
 - CD:
-  - Frontend/Backend: Vercel
-  - Database & Redis: managed service (e.g., Railway, Render, Neon, Supabase)
-  - Worker: deployed as a long-running Containerized Service (Docker) - _Cannot be Serverless_.
+  - Frontend/Backend/Worker: Vercel (All Serverless)
+  - Database: Managed PostgreSQL (e.g., Neon, Supabase)
+  - Redis: Managed Redis (Upstash) for SSE Pub/Sub
+  - Background Jobs: Inngest Cloud (Free Tier)
 
 ### 2.8 Local Development
 
 - **Containerization:** Docker Compose for local infrastructure (PostgreSQL, Redis).
+- **Inngest Dev Server:** Local Inngest Dev Server for testing background jobs.
 - **Data Seeding:** Automated script (`npm run db:seed`) to populate the database with dummy workspaces, users, and tasks for immediate testing.
 - **Ease of Use:** Single command setup (`docker-compose up` + `npm run dev`) to demonstrate focus on Developer Experience (DX).
 
@@ -110,14 +112,15 @@ flowchart LR
   subgraph Server
     NR[Next.js Route Handlers]
     TRPC[tRPC Router]
-    BG[BullMQ Worker]
+    INN[Inngest Functions]
   end
 
   subgraph Infra
     PG[(PostgreSQL)]
-    R[(Redis)]
+    R[(Redis - SSE PubSub)]
     Auth[Auth Provider - GitHub Email]
     Mail[Email Provider - Resend SendGrid]
+    INC[Inngest Cloud]
   end
 
   subgraph Observability
@@ -133,15 +136,17 @@ flowchart LR
   NR --> R
   TRPC --> PG
   TRPC --> R
-  BG --> PG
-  BG --> R
-  BG --> Mail
+  TRPC -->|Events| INC
+
+  INC -->|Webhooks| INN
+  INN --> PG
+  INN --> Mail
 
   NR --> Auth
 
   NR -->|Errors and Performance| S
   NR -->|Logs Traces Metrics| OT
-  BG -->|Logs Traces Metrics| OT
+  INN -->|Logs Traces Metrics| OT
 ```
 
 ---
@@ -204,7 +209,7 @@ The project is divided into two major phases:
 **Tech / implementation:**
 
 - Better Auth Organizations plugin API for CRUD and Invitations.
-- Background job: BullMQ sends invite emails (triggered by Better Auth hooks or custom logic).
+- Background job: Inngest sends invite emails (triggered by Better Auth hooks or custom logic).
 - Invite acceptance flow: Better Auth built-in invitation routes.
 
 ### 5.3 Boards, Columns, and Tasks (Kanban)
@@ -251,14 +256,14 @@ The project is divided into two major phases:
   - Workspace (Organization) invite sent.
   - Task assigned to user.
   - Due date approaching (simple scheduled job).
-- Job retries on failure.
+- Job retries on failure (handled by Inngest).
 - Logging of job status.
 
 **Tech / implementation:**
 
-- BullMQ producer enqueues jobs to Redis.
-- Invite emails are triggered by Better Auth's built-in invitation events/hooks.
-- Worker app (in Turborepo) consumes jobs and sends emails via Resend/SendGrid.
+- Inngest client sends events to Inngest Cloud.
+- Invite emails are triggered by Better Auth's built-in invitation events/hooks via Inngest.
+- Background logic lives in Next.js API routes (`/api/inngest`) as Inngest functions.
 - Jobs defined as TypeScript interfaces with Zod schemas.
 - Logs for job start, success, failure, retry.
 
@@ -286,8 +291,8 @@ The project is divided into two major phases:
   - unit tests (if any)
   - build (Next.js)
 - Deployment:
-  - Vercel for app.
-  - Managed Postgres + Redis for data.
+  - Vercel for app and background functions.
+  - Managed Postgres + Redis (Upstash) for data.
 
 **Tech / implementation:**
 
@@ -319,7 +324,7 @@ The project is divided into two major phases:
 
 **Features:**
 
-- Structured logging (JSON) on both app and worker.
+- Structured logging (JSON) in Next.js app.
 - Request ID attached to logs where possible.
 - Central error tracking with Sentry (client + server).
 
@@ -362,7 +367,7 @@ The project is divided into two major phases:
 
 - Next.js route handler `/api/boards/[id]/events` returning an SSE stream.
 - On relevant mutations, push events to:
-  - Redis pub-sub channel per board.
+  - Redis pub-sub channel per board (Upstash Redis).
   - Route handler subscribes to Redis channel and forwards to clients via SSE.
 - Client:
   - EventSource or lightweight wrapper for SSE.
@@ -411,7 +416,7 @@ The project is divided into two major phases:
   - Real-time updates (multi-window sync verification).
   - Offline behavior (simulate offline, perform action, verify sync on reconnect).
 - **Complex Integration:**
-  - BullMQ job processing tests with real Redis/Worker interaction.
+  - Inngest job processing tests (using Inngest SDK test utilities).
   - Conflict resolution scenarios for "Best Effort" offline sync.
 - **Visual Regression:** Snapshot testing for critical UI components (Optional).
 - **Performance Testing:** Basic Lighthouse or custom scripts for critical path latency.
@@ -419,7 +424,7 @@ The project is divided into two major phases:
 **Tech / implementation:**
 
 - Playwright network interception for offline simulation.
-- Redis-mock or ephemeral Redis containers for worker tests.
+- Inngest Dev Server for background job tests.
 - Merge coverage reports across Vitest and Playwright.
 
 ### 6.4 Observability with OpenTelemetry
@@ -440,7 +445,7 @@ The project is divided into two major phases:
 - Exporters to a backend (e.g., Highlight, Jaeger, or any OTel-compatible backend).
 - Custom spans around key operations:
   - tRPC procedure calls.
-  - BullMQ job processing.
+  - Inngest function executions.
   - External calls (email provider).
 - Ensure Sentry errors include trace context where possible.
 
@@ -525,7 +530,7 @@ By the time CollabSpace is complete with both MVP and Phase 2, it should explici
 - **Relational data modeling (PostgreSQL):** Rich schema with organizations, boards, tasks, time entries, invites, activity logs.
 - **Authentication & authorization:** Better Auth, session management, organization membership and roles.
 - **Real-time communication:** SSE for live board and activity updates.
-- **Background job processing:** BullMQ + Redis worker for emails, scheduled tasks.
+- **Background job processing:** Inngest (Serverless) for emails, scheduled tasks.
 - **Offline-first design:** PWA with service worker, caching strategies, offline UI, mutation queue.
 - **Testing strategies (unit → integration → e2e):** Vitest/Jest for unit/integration, Playwright for E2E.
 - **CI/CD and deployment:** GitHub Actions, Vercel, managed DB/Redis.
