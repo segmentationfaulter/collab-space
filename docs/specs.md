@@ -72,14 +72,13 @@
 
 ### 2.7 DevOps & Deployment
 
-- **Monorepo:** Turborepo
 - **CI:** GitHub Actions
   - lint
   - type check
   - unit + integration tests
   - build (Next.js)
 - CD:
-  - Frontend/Backend/Worker: Vercel (All Serverless)
+  - Deployment: Vercel (Serverless)
   - Database: Managed PostgreSQL (e.g., Neon, Supabase)
   - Redis: Managed Redis (Upstash) for SSE Pub/Sub
   - Background Jobs: Inngest Cloud (Free Tier)
@@ -304,7 +303,7 @@ The project is divided into two major phases:
 
 **Features:**
 
-- **Infrastructure:** Vitest and Playwright configured in the monorepo.
+- **Infrastructure:** Vitest and Playwright configured in the repository.
 - **Unit Tests:** Core utilities and pure business logic (e.g., permission helper functions).
 - **Integration Tests:** tRPC procedures tested with a real test database (Postgres) and transaction rollbacks.
 - **E2E Tests:** Critical flows covered by Playwright:

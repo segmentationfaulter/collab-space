@@ -14,70 +14,57 @@ In a web application, certain tasks should not block the main request/response c
 
 ---
 
-## 2. Approach 1: BullMQ (Redis-Backed)
+## 2. Approach: Inngest (Serverless / Event-Driven)
 
-**Status:** Defined in project `specs.md`.
+**Status:** Currently used in CollabSpace.
 
-BullMQ is the industry standard for Node.js. It uses **Redis** to store a queue of jobs and a separate **Worker** process to execute them.
+Inngest is a modern "background job as a service" that works via webhooks. It allows us to build a robust, event-driven background job system that runs entirely on serverless infrastructure.
+
+- **Pros:**
+  - **Serverless Friendly:** Works perfectly on Vercel; no long-running workers or 24/7 processes required.
+  - **Reliability:** Automatic retries, backoff, and state management for complex workflows.
+  - **DX:** You write background logic as standard functions right inside your Next.js app.
+  - **Zero Cost:** The free tier is generous and requires zero infrastructure management.
+- **Cons:**
+  - **SaaS Dependency:** Introduces a third-party dependency (Inngest Cloud) to manage the queue state.
+
+---
+
+## 3. Legacy Approach: BullMQ (Redis-Backed)
+
+Initially, the project was planned to use BullMQ. While BullMQ is an industry standard, it requires a **stateful long-running worker** and a **Redis** instance.
 
 - **Pros:**
   - **Robustness:** Built-in support for retries, backoff, and delayed jobs.
-  - **Observability:** Excellent tooling for monitoring queue health and failure rates.
   - **Portfolio Value:** Demonstrates knowledge of distributed systems and infrastructure management.
 - **Cons:**
-  - **Infrastructure Overhead:** Requires managing a Redis instance and a long-running containerized worker (Vercel alone is not enough).
+  - **Infrastructure Overhead:** Requires managing a Redis instance and a long-running containerized worker. This is not $0-friendly and adds deployment complexity.
 
 ---
 
-## 3. Approach 2: `next/after` (Native Next.js)
+## 4. Other Alternatives
 
-Next.js 15+ introduced `after()`, allowing code to run after the response has been sent to the user.
+### `next/after` (Native Next.js)
 
-- **Pros:**
-  - **Zero Infrastructure:** No Redis or separate workers needed.
-  - **Simplicity:** Extremely easy to implement for simple tasks like fire-and-forget emails.
-- **Cons:**
-  - **No Persistence:** If the serverless function hits a timeout or the process restarts, the job is lost forever.
-  - **No Retries:** If the email provider is down, the email will not be sent, and there is no automatic retry mechanism.
+- **Pros:** Zero infrastructure, built-in to Next.js.
+- **Cons:** No persistence or automatic retries. If the function hits a timeout, the job is lost.
 
----
+### Database-Backed Queues (Postgres)
 
-## 4. Approach 3: Inngest (Serverless / Event-Driven)
-
-Inngest is a modern "background job as a service" that works via webhooks.
-
-- **Pros:**
-  - **Serverless Friendly:** Works perfectly on Vercel; no long-running workers required.
-  - **Reliability:** Full state management, retries, and "step-through" functions (complex workflows).
-  - **DX:** You write worker code directly inside your Next.js API routes.
-- **Cons:**
-  - **SaaS Dependency:** Introduces a third-party dependency with its own pricing and uptime.
+- **Pros:** Transactional integrity; reuses existing database.
+- **Cons:** Can put pressure on the primary database with constant polling.
 
 ---
 
-## 5. Approach 4: Database-Backed Queues (Postgres)
+## 5. Comparison Summary
 
-Using tools like `pg-boss` or custom logic to store jobs in a `jobs` table in PostgreSQL.
+| Feature          | Inngest (Current) | BullMQ (Legacy) | `next/after` | DB-Backed       |
+| :--------------- | :---------------- | :-------------- | :----------- | :-------------- |
+| **Persistence**  | High (SaaS)       | High (Redis)    | None         | High (Postgres) |
+| **Retries**      | Automatic         | Automatic       | Manual/None  | Automatic       |
+| **Infra Needed** | None              | Redis + Worker  | None         | Postgres        |
+| **Cost**         | $0 (Free Tier)    | Paid (Server)   | $0           | $0              |
 
-- **Pros:**
-  - **Transactional Integrity:** You can save a "New Task" and an "Email Notification" in the _same_ database transaction. They either both succeed or both fail.
-  - **Less Infrastructure:** Reuses your existing Postgres database; no Redis needed.
-- **Cons:**
-  - **Performance:** Not as high-throughput as Redis; constant polling can put slight pressure on the database.
+## Why we chose Inngest
 
----
-
-## 6. Comparison Summary
-
-| Feature          | BullMQ         | `next/after` | Inngest     | DB-Backed       |
-| :--------------- | :------------- | :----------- | :---------- | :-------------- |
-| **Persistence**  | High (Redis)   | None         | High (SaaS) | High (Postgres) |
-| **Retries**      | Automatic      | Manual/None  | Automatic   | Automatic       |
-| **Infra Needed** | Redis + Worker | None         | None        | Postgres        |
-| **Complexity**   | High           | Low          | Medium      | Medium          |
-
-## Recommendation for CollabSpace
-
-For this project, we prioritize **Engineering Depth** and **Reliability**.
-
-While `next/after` is suitable for simple notifications, **BullMQ** (as specified in our architecture) provides the most robust solution for a production-grade SaaS application. It allows us to showcase a decoupled architecture where the Next.js app acts as a **Producer** and a separate Dockerized service acts as the **Consumer**.
+For CollabSpace, we moved from BullMQ to **Inngest** to achieve **Zero Cost Infrastructure** without compromising on reliability. This demonstrates a pragmatic engineering decision: choosing a modern, serverless-native solution that fits our deployment constraints while maintaining professional-grade background job features like retries and stateful workflows.
