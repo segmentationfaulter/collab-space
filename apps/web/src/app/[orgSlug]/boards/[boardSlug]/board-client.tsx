@@ -49,6 +49,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  closestCorners,
+  defaultDropAnimationSideEffects,
+  type DragStartEvent,
+  type DragOverEvent,
+  type DragEndEvent,
+  type DropAnimation,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  horizontalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { restrictToWindowEdges } from "@dnd-kit/modifiers";
+import { createPortal } from "react-dom";
+import { useEffect } from "react";
 
 export function BoardHeader({ boardSlug }: { boardSlug: string }) {
   const trpc = useTRPC();
@@ -256,18 +282,281 @@ function BoardTitle({ boardSlug }: { boardSlug: string }) {
 
 export function BoardColumns({ boardSlug }: { boardSlug: string }) {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const { data: board } = useSuspenseQuery(
     trpc.kanban.boards.getBySlug.queryOptions({ slug: boardSlug }),
   );
 
+  const [columns, setColumns] = useState<Column[]>(board.columns);
+  const [activeColumn, setActiveColumn] = useState<Column | null>(null);
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
+
+  useEffect(() => {
+    setColumns(board.columns);
+  }, [board.columns]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const reorderColumns = useMutation(
+    trpc.kanban.columns.reorder.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries(
+          trpc.kanban.boards.getBySlug.queryOptions({ slug: boardSlug }),
+        );
+      },
+      onError: (err) => {
+        toast.error(err.message || "Failed to reorder columns");
+        setColumns(board.columns);
+      },
+    }),
+  );
+
+  const reorderTasks = useMutation(
+    trpc.kanban.tasks.reorder.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries(
+          trpc.kanban.boards.getBySlug.queryOptions({ slug: boardSlug }),
+        );
+      },
+      onError: (err) => {
+        toast.error(err.message || "Failed to reorder tasks");
+        setColumns(board.columns);
+      },
+    }),
+  );
+
+  const onDragStart = (event: DragStartEvent) => {
+    if (event.active.data.current?.type === "Column") {
+      setActiveColumn(event.active.data.current.column);
+      return;
+    }
+
+    if (event.active.data.current?.type === "Task") {
+      setActiveTask(event.active.data.current.task);
+      return;
+    }
+  };
+
+  const onDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    if (activeId === overId) return;
+
+    const isActiveATask = active.data.current?.type === "Task";
+    const isOverATask = over.data.current?.type === "Task";
+
+    if (!isActiveATask) return;
+
+    // Im dropping a Task over another Task
+    if (isActiveATask && isOverATask) {
+      setColumns((columns) => {
+        const activeColumn = columns.find((col) =>
+          col.tasks.some((t) => t.id === activeId),
+        );
+        const overColumn = columns.find((col) =>
+          col.tasks.some((t) => t.id === overId),
+        );
+
+        if (!activeColumn || !overColumn) return columns;
+
+        if (activeColumn.id !== overColumn.id) {
+          const activeTasks = [...activeColumn.tasks];
+          const overTasks = [...overColumn.tasks];
+
+          const activeTaskIndex = activeTasks.findIndex(
+            (t) => t.id === activeId,
+          );
+          const overTaskIndex = overTasks.findIndex((t) => t.id === overId);
+
+          const [movedTask] = activeTasks.splice(activeTaskIndex, 1);
+          overTasks.splice(overTaskIndex, 0, {
+            ...movedTask,
+            columnId: overColumn.id,
+          });
+
+          return columns.map((col) => {
+            if (col.id === activeColumn.id)
+              return { ...col, tasks: activeTasks };
+            if (col.id === overColumn.id) return { ...col, tasks: overTasks };
+            return col;
+          });
+        }
+
+        return columns;
+      });
+    }
+
+    const isOverAColumn = over.data.current?.type === "Column";
+
+    // Im dropping a Task over a Column
+    if (isActiveATask && isOverAColumn) {
+      setColumns((columns) => {
+        const activeColumn = columns.find((col) =>
+          col.tasks.some((t) => t.id === activeId),
+        );
+        const overColumn = columns.find((col) => col.id === overId);
+
+        if (!activeColumn || !overColumn) return columns;
+
+        if (activeColumn.id !== overColumn.id) {
+          const activeTasks = [...activeColumn.tasks];
+          const overTasks = [...overColumn.tasks];
+
+          const activeTaskIndex = activeTasks.findIndex(
+            (t) => t.id === activeId,
+          );
+          const [movedTask] = activeTasks.splice(activeTaskIndex, 1);
+          overTasks.push({ ...movedTask, columnId: overColumn.id });
+
+          return columns.map((col) => {
+            if (col.id === activeColumn.id)
+              return { ...col, tasks: activeTasks };
+            if (col.id === overColumn.id) return { ...col, tasks: overTasks };
+            return col;
+          });
+        }
+
+        return columns;
+      });
+    }
+  };
+
+  const onDragEnd = (event: DragEndEvent) => {
+    setActiveColumn(null);
+    setActiveTask(null);
+
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    if (active.data.current?.type === "Column") {
+      if (activeId !== overId) {
+        const oldIndex = columns.findIndex((col) => col.id === activeId);
+        const newIndex = columns.findIndex((col) => col.id === overId);
+
+        const newColumns = arrayMove(columns, oldIndex, newIndex);
+        setColumns(newColumns);
+        reorderColumns.mutate({
+          boardId: board.id,
+          columnIds: newColumns.map((col) => col.id),
+        });
+      }
+      return;
+    }
+
+    if (active.data.current?.type === "Task") {
+      const activeColumn = columns.find((col) =>
+        col.tasks.some((t) => t.id === activeId),
+      );
+      const overColumn = columns.find(
+        (col) => col.id === overId || col.tasks.some((t) => t.id === overId),
+      );
+
+      if (!activeColumn || !overColumn) return;
+
+      if (activeColumn.id === overColumn.id) {
+        const oldIndex = activeColumn.tasks.findIndex((t) => t.id === activeId);
+        const newIndex = activeColumn.tasks.findIndex((t) => t.id === overId);
+
+        if (oldIndex !== newIndex) {
+          const newTasks = arrayMove(activeColumn.tasks, oldIndex, newIndex);
+          const newColumns = columns.map((col) =>
+            col.id === activeColumn.id ? { ...col, tasks: newTasks } : col,
+          );
+          setColumns(newColumns);
+          reorderTasks.mutate({
+            boardId: board.id,
+            columnId: activeColumn.id,
+            taskIds: newTasks.map((t) => t.id),
+          });
+        }
+      } else {
+        // Task was moved between columns - this is already handled by onDragOver for the UI
+        // We just need to trigger the mutations for both columns if needed,
+        // but reorderTasks.mutate only needs the target column's task IDs
+        reorderTasks.mutate({
+          boardId: board.id,
+          columnId: overColumn.id,
+          taskIds: overColumn.tasks.map((t) => t.id),
+        });
+
+        // We also need to update the source column to maintain consistency
+        reorderTasks.mutate({
+          boardId: board.id,
+          columnId: activeColumn.id,
+          taskIds: activeColumn.tasks.map((t) => t.id),
+        });
+      }
+    }
+  };
+
   return (
-    <div className="flex gap-6 h-full items-start">
-      {board.columns.map((column) => (
-        <BoardColumn key={column.id} column={column} />
-      ))}
-    </div>
+    <DndContext
+      id="kanban-board"
+      sensors={sensors}
+      collisionDetection={closestCorners}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragEnd={onDragEnd}
+    >
+      <div className="flex gap-6 h-full items-start">
+        <SortableContext
+          items={columns.map((col) => col.id)}
+          strategy={horizontalListSortingStrategy}
+        >
+          {columns.map((column) => (
+            <SortableBoardColumn key={column.id} column={column} />
+          ))}
+        </SortableContext>
+      </div>
+
+      {typeof document !== "undefined" &&
+        createPortal(
+          <DragOverlay
+            modifiers={[restrictToWindowEdges]}
+            dropAnimation={dropAnimation}
+          >
+            {activeColumn && (
+              <div className="opacity-80 scale-105 transition-transform duration-200">
+                <BoardColumn column={activeColumn} />
+              </div>
+            )}
+            {activeTask && (
+              <div className="opacity-80 scale-105 transition-transform duration-200 w-80">
+                <TaskCard task={activeTask} />
+              </div>
+            )}
+          </DragOverlay>,
+          document.body,
+        )}
+    </DndContext>
   );
 }
+
+const dropAnimation: DropAnimation = {
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: {
+      active: {
+        opacity: "0.5",
+      },
+    },
+  }),
+};
 
 function CreateColumnDialog({
   isOpen,
@@ -370,11 +659,61 @@ function CreateColumnDialog({
   );
 }
 
-function BoardColumn({ column }: { column: Column }) {
+function SortableBoardColumn({ column }: { column: Column }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: column.id,
+    data: {
+      type: "Column",
+      column,
+    },
+  });
+
+  const style = {
+    transition,
+    transform: CSS.Translate.toString(transform),
+  };
+
+  if (isDragging) {
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="w-80 shrink-0 h-125 bg-accent/50 border-2 border-dashed border-muted-foreground/20 rounded-xl"
+      />
+    );
+  }
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <BoardColumn
+        column={column}
+        dragHandleProps={{ ...attributes, ...listeners }}
+      />
+    </div>
+  );
+}
+
+function BoardColumn({
+  column,
+  dragHandleProps,
+}: {
+  column: Column;
+  dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
+}) {
   return (
     <div className="w-80 shrink-0 flex flex-col max-h-full group/column">
       <div className="flex items-center justify-between mb-4 px-1">
-        <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-2 cursor-grab active:cursor-grabbing"
+          {...dragHandleProps}
+        >
           <h2 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">
             {column.name}
           </h2>
@@ -389,11 +728,54 @@ function BoardColumn({ column }: { column: Column }) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar">
-        {column.tasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
-        ))}
+      <div className="flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar min-h-2.5">
+        <SortableContext
+          items={column.tasks.map((t) => t.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {column.tasks.map((task) => (
+            <SortableTaskCard key={task.id} task={task} />
+          ))}
+        </SortableContext>
       </div>
+    </div>
+  );
+}
+
+function SortableTaskCard({ task }: { task: Task }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: task.id,
+    data: {
+      type: "Task",
+      task,
+    },
+  });
+
+  const style = {
+    transition,
+    transform: CSS.Translate.toString(transform),
+  };
+
+  if (isDragging) {
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="h-25 bg-accent/50 border-2 border-dashed border-muted-foreground/20 rounded-xl opacity-50"
+      />
+    );
+  }
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <TaskCard task={task} />
     </div>
   );
 }
