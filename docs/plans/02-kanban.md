@@ -64,8 +64,3 @@
 - [x] Handle `onDragEnd` to finalize reordering, update local state, and call `reorderTasks`/`reorderColumns` tRPC procedures.
 - [x] Implement optimistic updates specifically for drag-and-drop operations.
 - **Verification:** Tasks can be dragged between and within columns, and their new positions persist after a refresh.
-
-### Task 6: Optimistic Updates
-
-- [ ] Implement TanStack Query `onMutate`, `onError`, and `onSettled` for task creation and editing.
-- **Verification:** Task creation and editing feel instantaneous even with artificial network latency.
