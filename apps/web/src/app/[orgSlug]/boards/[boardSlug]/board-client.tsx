@@ -56,7 +56,7 @@ import {
   KeyboardSensor,
   useSensor,
   useSensors,
-  closestCorners,
+  closestCenter,
   defaultDropAnimationSideEffects,
   type DragStartEvent,
   type DragOverEvent,
@@ -360,94 +360,62 @@ export function BoardColumns({ boardSlug }: { boardSlug: string }) {
     if (activeId === overId) return;
 
     const isActiveATask = active.data.current?.type === "Task";
-    const isOverATask = over.data.current?.type === "Task";
-
     if (!isActiveATask) return;
 
-    // Im dropping a Task over another Task
-    if (isActiveATask && isOverATask) {
-      setColumns((columns) => {
-        const activeColumn = columns.find((col) =>
-          col.tasks.some((t) => t.id === activeId),
-        );
-        const overColumn = columns.find((col) =>
-          col.tasks.some((t) => t.id === overId),
-        );
+    // Find containers correctly
+    const activeColumn = columns.find((col) =>
+      col.tasks.some((t) => t.id === activeId),
+    );
+    const overColumn = columns.find(
+      (col) => col.id === overId || col.tasks.some((t) => t.id === overId),
+    );
 
-        if (!activeColumn || !overColumn) return columns;
+    if (!activeColumn || !overColumn) return;
 
-        if (activeColumn.id !== overColumn.id) {
-          const activeTasks = [...activeColumn.tasks];
-          const overTasks = [...overColumn.tasks];
+    if (activeColumn.id !== overColumn.id) {
+      setColumns((prev) => {
+        const activeTasks = [...activeColumn.tasks];
+        const overTasks = [...overColumn.tasks];
 
-          const activeTaskIndex = activeTasks.findIndex(
-            (t) => t.id === activeId,
-          );
-          const overTaskIndex = overTasks.findIndex((t) => t.id === overId);
+        const activeTaskIndex = activeTasks.findIndex((t) => t.id === activeId);
+        if (activeTaskIndex === -1) return prev; // Guard against stale state
 
-          const [movedTask] = activeTasks.splice(activeTaskIndex, 1);
-          overTasks.splice(overTaskIndex, 0, {
-            ...movedTask,
-            columnId: overColumn.id,
-          });
+        const [movedTask] = activeTasks.splice(activeTaskIndex, 1);
 
-          return columns.map((col) => {
-            if (col.id === activeColumn.id)
-              return { ...col, tasks: activeTasks };
-            if (col.id === overColumn.id) return { ...col, tasks: overTasks };
-            return col;
-          });
-        } else {
-          // SAME COLUMN: use arrayMove to update local state for persistence
-          const oldIndex = activeColumn.tasks.findIndex(
-            (t) => t.id === activeId,
-          );
-          const newIndex = activeColumn.tasks.findIndex((t) => t.id === overId);
+        const isOverATask = overColumn.tasks.some((t) => t.id === overId);
+        const newIndex = isOverATask
+          ? overTasks.findIndex((t) => t.id === overId)
+          : overTasks.length;
 
-          if (oldIndex !== newIndex) {
-            const newTasks = arrayMove(activeColumn.tasks, oldIndex, newIndex);
-            return columns.map((col) =>
-              col.id === activeColumn.id ? { ...col, tasks: newTasks } : col,
-            );
-          }
-        }
+        overTasks.splice(newIndex, 0, {
+          ...movedTask,
+          columnId: overColumn.id,
+        });
 
-        return columns;
+        return prev.map((col) => {
+          if (col.id === activeColumn.id) return { ...col, tasks: activeTasks };
+          if (col.id === overColumn.id) return { ...col, tasks: overTasks };
+          return col;
+        });
       });
-    }
+    } else {
+      // Intra-column reordering during drag
+      const oldIndex = activeColumn.tasks.findIndex((t) => t.id === activeId);
+      const newIndex = activeColumn.tasks.findIndex((t) => t.id === overId);
 
-    const isOverAColumn = over.data.current?.type === "Column";
-
-    // Im dropping a Task over a Column
-    if (isActiveATask && isOverAColumn) {
-      setColumns((columns) => {
-        const activeColumn = columns.find((col) =>
-          col.tasks.some((t) => t.id === activeId),
-        );
-        const overColumn = columns.find((col) => col.id === overId);
-
-        if (!activeColumn || !overColumn) return columns;
-
-        if (activeColumn.id !== overColumn.id) {
-          const activeTasks = [...activeColumn.tasks];
-          const overTasks = [...overColumn.tasks];
-
-          const activeTaskIndex = activeTasks.findIndex(
-            (t) => t.id === activeId,
-          );
-          const [movedTask] = activeTasks.splice(activeTaskIndex, 1);
-          overTasks.push({ ...movedTask, columnId: overColumn.id });
-
-          return columns.map((col) => {
-            if (col.id === activeColumn.id)
-              return { ...col, tasks: activeTasks };
-            if (col.id === overColumn.id) return { ...col, tasks: overTasks };
+      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+        setColumns((prev) =>
+          prev.map((col) => {
+            if (col.id === activeColumn.id) {
+              return {
+                ...col,
+                tasks: arrayMove(col.tasks, oldIndex, newIndex),
+              };
+            }
             return col;
-          });
-        }
-
-        return columns;
-      });
+          }),
+        );
+      }
     }
   };
 
@@ -532,7 +500,7 @@ export function BoardColumns({ boardSlug }: { boardSlug: string }) {
     <DndContext
       id="kanban-board"
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={closestCenter}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}
@@ -555,12 +523,12 @@ export function BoardColumns({ boardSlug }: { boardSlug: string }) {
             dropAnimation={dropAnimation}
           >
             {activeColumn && (
-              <div className="opacity-80 scale-105 transition-transform duration-200">
+              <div className="opacity-80 scale-105 transition-transform duration-200 pointer-events-none">
                 <BoardColumn column={activeColumn} />
               </div>
             )}
             {activeTask && (
-              <div className="opacity-80 scale-105 transition-transform duration-200 w-80">
+              <div className="opacity-80 scale-105 transition-transform duration-200 w-80 pointer-events-none">
                 <TaskCard task={activeTask} />
               </div>
             )}
@@ -751,7 +719,7 @@ function BoardColumn({
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar min-h-2.5">
+      <div className="flex-1 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar min-h-[150px]">
         <SortableContext
           items={column.tasks.map((t) => t.id)}
           strategy={verticalListSortingStrategy}
