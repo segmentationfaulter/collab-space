@@ -230,24 +230,7 @@ The project is divided into two major phases:
 - Drag-and-drop using dnd-kit or similar.
 - TanStack Query for client state and optimistic updates.
 
-### 5.4 Basic Collaboration
-
-**Features:**
-
-- Comments on tasks:
-  - Threaded per task.
-  - Show author, timestamp, and content.
-- Activity feed:
-  - Per board: shows “Task moved”, “Task assigned”, “Comment added”, etc.
-  - Polled on navigation or on a timer (e.g., every 30–60s) – in MVP, real-time is optional (see Phase 2).
-
-**Tech / implementation:**
-
-- Models: Comment, ActivityLog.
-- ActivityLog entries created server-side after mutations.
-- Simple periodic polling or fetch-on-focus for updates in MVP.
-
-### 5.5 Background Jobs & Email Notifications
+### 5.4 Background Jobs & Email Notifications
 
 **Features:**
 
@@ -266,21 +249,7 @@ The project is divided into two major phases:
 - Jobs defined as TypeScript interfaces with Zod schemas.
 - Logs for job start, success, failure, retry.
 
-### 5.6 Time Tracking (Basic)
-
-**Features:**
-
-- Start/stop timer on a task.
-- View list of time entries filtered by task/user/date.
-- No fancy dashboards yet – just raw data and simple totals.
-
-**Tech / implementation:**
-
-- Model: TimeEntry (taskId, userId, start, end, duration).
-- Timer component in UI storing start time locally and sending start/stop calls via tRPC.
-- Simple API to query entries by user or task.
-
-### 5.7 CI/CD & Deployment (MVP Level)
+### 5.5 CI/CD & Deployment (MVP Level)
 
 **Features:**
 
@@ -298,6 +267,37 @@ The project is divided into two major phases:
 - GitHub Actions workflow with separate jobs.
 - Environment variables in Vercel and hosting provider.
 - DB migrations via Drizzle Kit (run in deploy script or CI).
+
+### 5.6 Basic Collaboration
+
+**Features:**
+
+- Comments on tasks:
+  - Threaded per task.
+  - Show author, timestamp, and content.
+- Activity feed:
+  - Per board: shows “Task moved”, “Task assigned”, “Comment added”, etc.
+  - Polled on navigation or on a timer (e.g., every 30–60s) – in MVP, real-time is optional (see Phase 2).
+
+**Tech / implementation:**
+
+- Models: Comment, ActivityLog.
+- ActivityLog entries created server-side after mutations.
+- Simple periodic polling or fetch-on-focus for updates in MVP.
+
+### 5.7 Time Tracking (Basic)
+
+**Features:**
+
+- Start/stop timer on a task.
+- View list of time entries filtered by task/user/date.
+- No fancy dashboards yet – just raw data and simple totals.
+
+**Tech / implementation:**
+
+- Model: TimeEntry (taskId, userId, start, end, duration).
+- Timer component in UI storing start time locally and sending start/stop calls via tRPC.
+- Simple API to query entries by user or task.
 
 ### 5.8 Testing Pyramid – Core Coverage (MVP)
 
