@@ -8,7 +8,7 @@
 
 ## Current Focus
 
-- **Active Feature:** Boards, Columns, and Tasks (Kanban) (See: `docs/plans/02-kanban.md`)
+- **Active Feature:** Background Jobs & Email Notifications (Inngest) (See: `docs/plans/03-background-jobs.md`)
 
 ## Rules & Mandates
 
