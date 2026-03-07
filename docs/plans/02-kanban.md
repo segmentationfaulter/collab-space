@@ -55,11 +55,14 @@
 
 ### Task 5: Drag-and-Drop Implementation
 
-- [ ] Install `@dnd-kit/core`, `@dnd-kit/sortable`, and `@dnd-kit/utilities`.
-- [ ] Wrap the board in `DndContext`.
-- [ ] Implement `SortableContext` for columns and tasks.
-- [ ] Handle `onDragEnd` to update local state and call `reorderTasks` tRPC procedure.
-- [ ] Implement optimistic updates for task movements.
+- [ ] Install `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`, and `@dnd-kit/modifiers`.
+- [ ] Set up `DndContext` with sensors (Pointer, Keyboard) and a collision detection strategy (e.g., `closestCorners`).
+- [ ] Implement `SortableContext` for both columns (horizontal) and tasks (vertical).
+- [ ] Create `SortableColumn` and `SortableTask` wrappers using `useSortable`.
+- [ ] Implement `DragOverlay` for a smooth visual experience during drag.
+- [ ] Handle `onDragOver` to support moving tasks between different columns mid-drag.
+- [ ] Handle `onDragEnd` to finalize reordering, update local state, and call `reorderTasks`/`reorderColumns` tRPC procedures.
+- [ ] Implement optimistic updates specifically for drag-and-drop operations.
 - **Verification:** Tasks can be dragged between and within columns, and their new positions persist after a refresh.
 
 ### Task 6: Optimistic Updates
