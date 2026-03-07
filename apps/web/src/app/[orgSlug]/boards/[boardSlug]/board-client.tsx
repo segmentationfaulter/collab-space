@@ -397,6 +397,19 @@ export function BoardColumns({ boardSlug }: { boardSlug: string }) {
             if (col.id === overColumn.id) return { ...col, tasks: overTasks };
             return col;
           });
+        } else {
+          // SAME COLUMN: use arrayMove to update local state for persistence
+          const oldIndex = activeColumn.tasks.findIndex(
+            (t) => t.id === activeId,
+          );
+          const newIndex = activeColumn.tasks.findIndex((t) => t.id === overId);
+
+          if (oldIndex !== newIndex) {
+            const newTasks = arrayMove(activeColumn.tasks, oldIndex, newIndex);
+            return columns.map((col) =>
+              col.id === activeColumn.id ? { ...col, tasks: newTasks } : col,
+            );
+          }
         }
 
         return columns;
