@@ -290,6 +290,7 @@ export function BoardColumns({ boardSlug }: { boardSlug: string }) {
   const [columns, setColumns] = useState<Column[]>(board.columns);
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [sourceColumn, setSourceColumn] = useState<Column | null>(null);
 
   useEffect(() => {
     setColumns(board.columns);
@@ -341,7 +342,10 @@ export function BoardColumns({ boardSlug }: { boardSlug: string }) {
     }
 
     if (event.active.data.current?.type === "Task") {
-      setActiveTask(event.active.data.current.task);
+      const task = event.active.data.current.task as Task;
+      setActiveTask(task);
+      const col = columns.find((c) => c.tasks.some((t) => t.id === task.id));
+      if (col) setSourceColumn(col);
       return;
     }
   };
@@ -437,6 +441,8 @@ export function BoardColumns({ boardSlug }: { boardSlug: string }) {
   const onDragEnd = (event: DragEndEvent) => {
     setActiveColumn(null);
     setActiveTask(null);
+    const prevSourceColumn = sourceColumn;
+    setSourceColumn(null);
 
     const { active, over } = event;
     if (!over) return;
@@ -460,47 +466,51 @@ export function BoardColumns({ boardSlug }: { boardSlug: string }) {
     }
 
     if (active.data.current?.type === "Task") {
-      const activeColumn = columns.find((col) =>
+      // Find where the task is NOW in our local state
+      const currentActiveColumn = columns.find((col) =>
         col.tasks.some((t) => t.id === activeId),
       );
-      const overColumn = columns.find(
-        (col) => col.id === overId || col.tasks.some((t) => t.id === overId),
-      );
 
-      if (!activeColumn || !overColumn) return;
+      if (!currentActiveColumn || !prevSourceColumn) return;
 
-      if (activeColumn.id === overColumn.id) {
-        const oldIndex = activeColumn.tasks.findIndex((t) => t.id === activeId);
-        const newIndex = activeColumn.tasks.findIndex((t) => t.id === overId);
+      const isInterColumnMove = prevSourceColumn.id !== currentActiveColumn.id;
+
+      if (!isInterColumnMove) {
+        // Intra-column move: just check if the position changed within the same column
+        const oldIndex = prevSourceColumn.tasks.findIndex(
+          (t) => t.id === activeId,
+        );
+        const newIndex = currentActiveColumn.tasks.findIndex(
+          (t) => t.id === activeId,
+        );
 
         if (oldIndex !== newIndex) {
-          const newTasks = arrayMove(activeColumn.tasks, oldIndex, newIndex);
-          const newColumns = columns.map((col) =>
-            col.id === activeColumn.id ? { ...col, tasks: newTasks } : col,
-          );
-          setColumns(newColumns);
           reorderTasks.mutate({
             boardId: board.id,
-            columnId: activeColumn.id,
-            taskIds: newTasks.map((t) => t.id),
+            columnId: currentActiveColumn.id,
+            taskIds: currentActiveColumn.tasks.map((t) => t.id),
           });
         }
       } else {
-        // Task was moved between columns - this is already handled by onDragOver for the UI
-        // We just need to trigger the mutations for both columns if needed,
-        // but reorderTasks.mutate only needs the target column's task IDs
+        // Inter-column move: persisted via both columns
+        // Both columns are updated in the UI by onDragOver, so we just persist both
         reorderTasks.mutate({
           boardId: board.id,
-          columnId: overColumn.id,
-          taskIds: overColumn.tasks.map((t) => t.id),
+          columnId: currentActiveColumn.id,
+          taskIds: currentActiveColumn.tasks.map((t) => t.id),
         });
 
-        // We also need to update the source column to maintain consistency
-        reorderTasks.mutate({
-          boardId: board.id,
-          columnId: activeColumn.id,
-          taskIds: activeColumn.tasks.map((t) => t.id),
-        });
+        // Also update the source column to reflect the removal
+        const finalSourceColumn = columns.find(
+          (col) => col.id === prevSourceColumn.id,
+        );
+        if (finalSourceColumn) {
+          reorderTasks.mutate({
+            boardId: board.id,
+            columnId: finalSourceColumn.id,
+            taskIds: finalSourceColumn.tasks.map((t) => t.id),
+          });
+        }
       }
     }
   };
