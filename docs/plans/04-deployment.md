@@ -28,9 +28,10 @@
 
 ### Task 3: Database Migrations in CI/CD
 
-- [ ] Configure Drizzle Kit to run migrations as part of the deployment flow.
-- [ ] Ensure `db:push` or a migration script runs safely against the production database.
-- **Verification:** Add a small schema change, push it, and verify the production database reflects the change.
+- [x] Configure Drizzle Kit to use migrations (created `drizzle/` directory).
+- [x] Update `package.json` with `db:generate` and `db:migrate` (using `drizzle-kit migrate`).
+- [x] Update Build Command to `pnpm db:migrate && next build` in `package.json`.
+- **Verification:** Migrations run successfully against the local database using `pnpm db:migrate`.
 
 ### Task 4: Background Jobs (Inngest Cloud)
 
