@@ -35,6 +35,6 @@
 
 ### Task 4: Background Jobs (Inngest Cloud)
 
-- [ ] Connect the Vercel app to Inngest Cloud.
-- [ ] Configure `INNGEST_EVENT_KEY` and `INNGEST_SIGNING_KEY` in Vercel.
+- [x] Connect the Vercel app to Inngest Cloud.
+- [x] Configure `INNGEST_EVENT_KEY` and `INNGEST_SIGNING_KEY` in Vercel.
 - **Verification:** Verify that background jobs (like invitations) work in the deployed environment.
