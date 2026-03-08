@@ -8,7 +8,7 @@
 
 ## Current Focus
 
-- **Active Feature:** Background Jobs & Email Notifications (Inngest) (See: `docs/plans/03-background-jobs.md`)
+- **Active Feature:** CI/CD & Deployment (See: `docs/plans/04-deployment.md`)
 
 ## Rules & Mandates
 
