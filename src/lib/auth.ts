@@ -6,14 +6,17 @@ import { nextCookies } from "better-auth/next-js";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db";
 import * as schema from "../db/schemas";
+import { getBaseUrl } from "./auth-utils";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,
   }),
+  // Secret key used for signing session tokens (required)
   secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL,
+  // The base URL for the auth server (e.g., https://myapp.com)
+  baseURL: getBaseUrl(),
   emailAndPassword: {
     enabled: true,
   },
@@ -45,6 +48,7 @@ export const auth = betterAuth({
   ],
   socialProviders: {
     github: {
+      // GitHub OAuth credentials from https://github.com/settings/developers
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
       mapProfileToUser: (profile) => {

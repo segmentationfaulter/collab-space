@@ -20,9 +20,10 @@
 
 ### Task 2: Vercel Project Setup
 
-- [ ] Configure `vercel.json` if custom routing or headers are needed.
-- [ ] Set up Environment Variables in Vercel (matching `.env.example`).
-- [ ] Connect GitHub repository to Vercel for automatic deployments.
+- [x] Configure `vercel.json` (no custom config needed for now).
+- [x] Document and prepare Environment Variables (updated `.env.example` and created `.env.production` template).
+- [x] Update `.gitignore` to safely handle local production templates (`.env*`).
+- [ ] Connect GitHub repository to Vercel and enable "Automatically expose System Environment Variables" (Manual step).
 - **Verification:** Initial deployment succeeds on Vercel and the app is accessible.
 
 ### Task 3: Database Migrations in CI/CD
