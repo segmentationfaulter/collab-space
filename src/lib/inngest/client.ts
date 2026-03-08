@@ -1,4 +1,19 @@
-import { Inngest } from "inngest";
+import { Inngest, EventSchemas } from "inngest";
 
-// Create a client to send and receive events
-export const inngest = new Inngest({ id: "collab-space" });
+type Events = {
+  "workspace/member.invited": {
+    data: {
+      invitationId: string;
+      email: string;
+      role: string;
+      organizationId: string;
+      organizationName: string;
+      inviterName: string;
+    };
+  };
+};
+
+export const inngest = new Inngest({
+  id: "collab-space",
+  schemas: new EventSchemas().fromRecord<Events>(),
+});

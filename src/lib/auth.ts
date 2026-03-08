@@ -17,7 +17,32 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  plugins: [username(), organization(), nextCookies()],
+  plugins: [
+    username(),
+    organization({
+      organizationHooks: {
+        afterCreateInvitation: async ({
+          invitation,
+          inviter,
+          organization,
+        }) => {
+          const { inngest } = await import("./inngest/client");
+          await inngest.send({
+            name: "workspace/member.invited",
+            data: {
+              invitationId: invitation.id,
+              email: invitation.email,
+              role: invitation.role,
+              organizationId: organization.id,
+              organizationName: organization.name,
+              inviterName: inviter.user.name || inviter.user.email,
+            },
+          });
+        },
+      },
+    }),
+    nextCookies(),
+  ],
   socialProviders: {
     github: {
       clientId: process.env.GITHUB_CLIENT_ID!,
