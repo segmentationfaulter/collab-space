@@ -303,7 +303,7 @@ The project is divided into two major phases:
 
 **Features:**
 
-- **Infrastructure:** Vitest and Playwright configured in the repository.
+- **Infrastructure:** Vitest and Playwright configured in the repository. Update CI configuration (`ci.yml`) to include automated E2E test runs.
 - **Unit Tests:** Core utilities and pure business logic (e.g., permission helper functions).
 - **Integration Tests:** tRPC procedures tested with a real test database (Postgres) and transaction rollbacks.
 - **E2E Tests:** Critical flows covered by Playwright:
