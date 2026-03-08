@@ -74,7 +74,6 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { createPortal } from "react-dom";
-import { useEffect } from "react";
 
 export function BoardHeader({ boardSlug }: { boardSlug: string }) {
   const trpc = useTRPC();
@@ -288,13 +287,19 @@ export function BoardColumns({ boardSlug }: { boardSlug: string }) {
   );
 
   const [columns, setColumns] = useState<Column[]>(board.columns);
+  const [prevBoardColumns, setPrevBoardColumns] = useState<Column[]>(
+    board.columns,
+  );
+
+  // Sync local state with server data when board.columns changes (e.g. new column added)
+  if (board.columns !== prevBoardColumns) {
+    setColumns(board.columns);
+    setPrevBoardColumns(board.columns);
+  }
+
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [sourceColumn, setSourceColumn] = useState<Column | null>(null);
-
-  useEffect(() => {
-    setColumns(board.columns);
-  }, [board.columns]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

@@ -11,11 +11,11 @@
 
 ### Task 1: GitHub Actions Workflow
 
-- [ ] Create `.github/workflows/ci.yml`.
-- [ ] Implement `lint` job: Run `pnpm lint`.
-- [ ] Implement `type-check` job: Run `pnpm tsc --noEmit`.
-- [ ] Implement `test` job: Run `pnpm test` (Vitest).
-- [ ] Implement `build` job: Run `pnpm build` to ensure the project compiles.
+- [x] Create `.github/workflows/ci.yml`.
+- [x] Implement `lint` job: Run `pnpm lint`.
+- [x] Implement `type-check` job: Run `pnpm tsc --noEmit`.
+- [x] Implement `test` job: Run `pnpm test` (Vitest).
+- [x] Implement `build` job: Run `pnpm build` to ensure the project compiles.
 - **Verification:** Push a commit and verify all jobs pass in the GitHub Actions tab.
 
 ### Task 2: E2E Testing in CI

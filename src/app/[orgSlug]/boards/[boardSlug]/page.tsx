@@ -26,7 +26,7 @@ export default async function BoardPage({
         <BoardHeader boardSlug={boardSlug} />
         <div className="flex-1 overflow-x-auto p-8 bg-accent/5">
           <Suspense fallback={<BoardColumnsSkeleton />}>
-            <BoardColumns boardSlug={boardSlug} />
+            <BoardColumns key={boardSlug} boardSlug={boardSlug} />
           </Suspense>
         </div>
       </HydrationBoundary>
