@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, workspaceMemberProcedure } from "../init";
-import { boards, columns, tasks, labels, taskLabels } from "@/db/schemas";
+import { boards, columns, user, tasks, labels, taskLabels } from "@/db/schemas";
 import { eq, desc, and, asc } from "drizzle-orm";
 import { db } from "@/db";
 import { TRPC_ERRORS } from "../../shared";
@@ -353,6 +353,33 @@ const tasksRouter = createTRPCRouter({
         .set(input)
         .where(eq(tasks.id, ctx.task.id))
         .returning();
+
+      // Trigger notification if assignee changed and is not null
+      if (
+        input.assigneeId &&
+        input.assigneeId !== ctx.task.assigneeId &&
+        input.assigneeId !== ctx.session.user.id // Don't notify yourself
+      ) {
+        const assignee = await db.query.user.findFirst({
+          where: eq(user.id, input.assigneeId),
+        });
+
+        if (assignee?.email) {
+          const { inngest } = await import("@/lib/inngest/client");
+          await inngest.send({
+            name: "task/assigned",
+            data: {
+              taskId: updatedTask.id,
+              taskTitle: updatedTask.title,
+              assigneeId: assignee.id,
+              assigneeEmail: assignee.email,
+              assignerName: ctx.session.user.name || ctx.session.user.email,
+              boardName: ctx.task.column.board.name,
+              priority: updatedTask.priority || "medium",
+            },
+          });
+        }
+      }
 
       return updatedTask;
     }),

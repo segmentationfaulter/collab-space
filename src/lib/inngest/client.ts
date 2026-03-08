@@ -11,6 +11,17 @@ type Events = {
       inviterName: string;
     };
   };
+  "task/assigned": {
+    data: {
+      taskId: string;
+      taskTitle: string;
+      assigneeId: string;
+      assigneeEmail: string;
+      assignerName: string;
+      boardName: string;
+      priority: string;
+    };
+  };
 };
 
 export const inngest = new Inngest({
