@@ -12,11 +12,26 @@ export default async function BoardPage({
   params: Promise<{ orgSlug: string; boardSlug: string }>;
 }) {
   const { orgSlug, boardSlug } = await params;
+
+  return (
+    <Suspense fallback={<BoardPageSkeleton />}>
+      <AuthenticatedBoardContainer orgSlug={orgSlug} boardSlug={boardSlug} />
+    </Suspense>
+  );
+}
+
+async function AuthenticatedBoardContainer({
+  orgSlug,
+  boardSlug,
+}: {
+  orgSlug: string;
+  boardSlug: string;
+}) {
   await requireOrgAuth(orgSlug);
 
   const queryClient = makeQueryClient();
-  // Prefetch board, columns, and tasks
-  void queryClient.prefetchQuery(
+  // Prefetch board, columns, and tasks and await it within the Suspense boundary
+  await queryClient.prefetchQuery(
     trpc.kanban.boards.getBySlug.queryOptions({ slug: boardSlug }),
   );
 
@@ -30,6 +45,20 @@ export default async function BoardPage({
           </Suspense>
         </div>
       </HydrationBoundary>
+    </div>
+  );
+}
+
+function BoardPageSkeleton() {
+  return (
+    <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
+      <div className="h-16 border-b bg-background px-8 flex items-center justify-between">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-10 w-32" />
+      </div>
+      <div className="flex-1 overflow-x-auto p-8 bg-accent/5">
+        <BoardColumnsSkeleton />
+      </div>
     </div>
   );
 }

@@ -13,11 +13,6 @@ export default async function BoardsPage({
   params: Promise<{ orgSlug: string }>;
 }) {
   const { orgSlug } = await params;
-  await requireOrgAuth(orgSlug);
-
-  const queryClient = makeQueryClient();
-  // Start prefetching but don't await. This allows streaming to start immediately.
-  void queryClient.prefetchQuery(trpc.kanban.boards.list.queryOptions());
 
   return (
     <div className="p-8 space-y-8 max-w-7xl mx-auto w-full">
@@ -32,11 +27,23 @@ export default async function BoardsPage({
       </div>
 
       <Suspense fallback={<BoardsLoadingSkeleton />}>
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <BoardsClient orgSlug={orgSlug} />
-        </HydrationBoundary>
+        <AuthenticatedBoardsContainer orgSlug={orgSlug} />
       </Suspense>
     </div>
+  );
+}
+
+async function AuthenticatedBoardsContainer({ orgSlug }: { orgSlug: string }) {
+  await requireOrgAuth(orgSlug);
+
+  const queryClient = makeQueryClient();
+  // Start prefetching and await it here within the Suspense boundary
+  await queryClient.prefetchQuery(trpc.kanban.boards.list.queryOptions());
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <BoardsClient orgSlug={orgSlug} />
+    </HydrationBoundary>
   );
 }
 
