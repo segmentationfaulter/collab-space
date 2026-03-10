@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
-import { useCreateOrgDialog } from "@/hooks/use-create-org-dialog";
+import { useCreateOrgDialog } from "@/providers/create-org-dialog-provider";
 import type { Organization } from "@/types/auth";
 import { toast } from "sonner";
 import {

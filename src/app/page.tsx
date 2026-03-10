@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Building2, Plus } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { getAuthData } from "@/lib/auth-server";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
+import { CreateWorkspaceButton } from "@/components/create-workspace-button";
 import {
   Empty,
   EmptyContent,
@@ -12,6 +12,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import Link from "next/link";
 
 export default async function RootPage() {
   const { session, organizations, activeOrganizationId } = await getAuthData();
@@ -52,12 +53,7 @@ export default async function RootPage() {
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            <Button size="lg" className="gap-2 cursor-pointer" asChild>
-              <Link href="?create=true">
-                <Plus className="h-5 w-5" />
-                Get Started
-              </Link>
-            </Button>
+            <CreateWorkspaceButton />
           </EmptyContent>
         </Empty>
       </div>
