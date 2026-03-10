@@ -47,6 +47,9 @@ export default async function AcceptInvitationPage(props: {
     }
   }
 
+  console.log("invitation", invitation);
+  console.log("error", error);
+
   if (invitation) {
     try {
       const org = await db.query.organization.findFirst({
