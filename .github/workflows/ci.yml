@@ -65,7 +65,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Run build
-        run: pnpm build
+        run: pnpm exec next build
     env:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
       BETTER_AUTH_SECRET: placeholder
