@@ -2,6 +2,7 @@ import { inngest } from "./client";
 import { sendEmail } from "../email";
 import { InvitationEmail } from "../../components/emails/invitation-email";
 import { TaskAssignedEmail } from "../../components/emails/task-assigned-email";
+import { getBaseUrl } from "../auth-utils";
 
 export const sendInvitationEmail = inngest.createFunction(
   { id: "send-invitation-email" },
@@ -9,7 +10,7 @@ export const sendInvitationEmail = inngest.createFunction(
   async ({ event }) => {
     const { email, organizationName, inviterName, invitationId } = event.data;
 
-    const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000";
+    const baseUrl = getBaseUrl();
     const invitationLink = `${baseUrl}/accept-invitation/${invitationId}`;
 
     await sendEmail({
@@ -39,7 +40,7 @@ export const sendTaskAssignmentEmail = inngest.createFunction(
       taskId,
     } = event.data;
 
-    const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000";
+    const baseUrl = getBaseUrl();
     // Construct task link - we'll need the org slug for a real link,
     // but for now we'll use a generic placeholder or taskId
     const taskLink = `${baseUrl}/tasks/${taskId}`;
