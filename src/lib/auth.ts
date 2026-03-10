@@ -30,6 +30,7 @@ export const auth = betterAuth({
           organization,
         }) => {
           const { inngest } = await import("./inngest/client");
+
           await inngest.send({
             name: "workspace/member.invited",
             data: {
@@ -38,7 +39,7 @@ export const auth = betterAuth({
               role: invitation.role,
               organizationId: organization.id,
               organizationName: organization.name,
-              inviterName: inviter.user.name || inviter.user.email,
+              inviterName: inviter.name || "Someone",
             },
           });
         },
